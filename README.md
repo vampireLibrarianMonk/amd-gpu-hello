@@ -1,5 +1,5 @@
 # Foreword
-This repo was created for anyone curious as to what is going on with AMD GPUs and the machine learning space. 
+This repo was created for anyone curious as to what is going on with AMD GPUs,ROCm (Radeon Open Compute) and the machine learning space. 
 
 The GPU referred to in this tutorial is an MSI Gaming Radeon 7900 XTX 24 GB.
 
@@ -92,6 +92,17 @@ Result for Base OS:
 
 3. Use the following [instruction set](https://www.jetbrains.com/help/pycharm/configuring-python-interpreter.html) to set your python interpreter to use your python environment.
 
+## Mamba Environment Manager
+1. We’ll use the Mamba package manager to create the Python environment. You can learn more about it in my getting started tutorial.
+
+The following bash commands will download the latest release, install it, and relaunch the current bash shell to apply the relevant changes:
+```bash
+wget "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
+bash Mambaforge-$(uname)-$(uname -m).sh -b
+~/mambaforge/bin/mamba init
+bash
+```
+
 ## Base OS Python, Pytorch Installation
 1. Install pytorch for ROCm via this [link](https://rocm.docs.amd.com/projects/radeon/en/latest/docs/install/install-pytorch.html).
 ```bash
@@ -111,26 +122,15 @@ Important! AMD recommends proceeding with ROCm WHLs available at repo.radeon.com
 The ROCm WHLs available at PyTorch.org are not tested extensively by AMD as the WHLs change regularly when the nightly builds are updated.
 
 
-## Mamba Environment Manager, Pytorch Installation
-1. We’ll use the Mamba package manager to create the Python environment. You can learn more about it in my getting started tutorial.
+## Mamba Pytorch Installation
+1. Create a Python Environment
 
-The following bash commands will download the latest release, install it, and relaunch the current bash shell to apply the relevant changes:
-```bash
-wget "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
-bash Mambaforge-$(uname)-$(uname -m).sh -b
-~/mambaforge/bin/mamba init
-bash
-```
-
-2. Create a Python Environment
-
-Next, we’ll create a Python environment and activate it. The current version of the extension supports Python 3.10, so we’ll use that.
 ```bash
 mamba create --name pytorch-rocm python=3.10 -y
 mamba activate pytorch-rocm
 ```
 
-3. Install pip dependencies for rocm in Base OS Python section.
+3Install pip dependencies for rocm in Base OS Python section.
 
 ## Verify pytorch installation.
 1. Verify if Pytorch is installed and detecting the GPU compute device.
@@ -275,3 +275,48 @@ Historical Significance
 Accessibility
 
 * Open Access: The dataset is publicly available and can be easily accessed and used through various machine learning frameworks like TensorFlow, PyTorch, etc.
+
+## Tensorflow Pre-requisites
+
+1. Install [ROCm libraries](https://rocmdocs.amd.com/en/latest/reference/library-index.html) and [Radeon Collective Communications Library (RCCL)](https://rocmdocs.amd.com/en/latest/reference/library-index.html#rccl).
+```bash
+sudo apt install rocm-libs rccl
+```
+
+## Mamba Tensorflow Installation 
+1. Create a Python Environment
+
+```bash
+mamba create --name tensorflow-rocm python=3.10 -y
+mamba activate tensorflow-rocm
+```
+
+2. Install pip dependencies:
+
+```bash
+pip3 install tensorflow-rocm==2.13.0.570
+```
+
+3. Enter a python terminal 
+```bash
+python
+```
+
+4. The following is a bookmark until the 7900 XTX (gfx1100) starts working with ROCm. Note that docker was tried and resulted in the same message.
+```bash
+Python 3.10.13 | packaged by conda-forge | (main, Oct 26 2023, 18:07:37) [GCC 12.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import random
+>>> import tensorflow as tf
+2023-12-17 14:26:56.148598: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+>>> from tensorflow.keras import datasets, layers
+>>> from tensorflow.python.platform import build_info as tf_build_info
+>>> tf.config.list_physical_devices('GPU')
+2023-12-17 14:27:12.731221: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2023-12-17 14:27:12.744650: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2023-12-17 14:27:12.744697: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2023-12-17 14:27:12.744715: I tensorflow/core/common_runtime/gpu/gpu_device.cc:2015] Ignoring visible gpu device (device: 0, name: Radeon RX 7900 XTX, pci bus id: 0000:2d:00.0) with AMDGPU version : gfx1100. The supported AMDGPU versions are gfx1030, gfx900, gfx906, gfx908, gfx90a, gfx940, gfx941, gfx942.
+[]
+
+```
