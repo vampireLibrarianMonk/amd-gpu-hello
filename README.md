@@ -1,13 +1,17 @@
 # Foreword
 This repo was created for anyone curious as to what is going on with AMD GPUs,ROCm (Radeon Open Compute) and the machine learning space. 
 
-The GPU referred to in this tutorial is an MSI Gaming Radeon 7900 XTX 24 GB.
+The GPUs referenced in this tutorial:
+  * AMD Radeon RX 6600 XT 8 GB.
+  * MSI Gaming Radeon 7900 XTX 24 GB.
 
 One thing of annoyance is the long term support of GPUs with a ongoing comment section [here](https://github.com/ROCm/ROCm/issues/2308). To summarize NVIDIA usually supports their GPUs for 8+ years and it looks like AMD only for ~4 years. Keep this in mind when working with these GPUs!
 
 Tensorflow directions yet to be implemented from [here](https://cprimozic.net/notes/posts/setting-up-tensorflow-with-rocm-on-7900-xtx/) for the 7900 XTX. 
 
 [ROCM Version List](https://rocm.docs.amd.com/en/latest/release/versions.html)
+
+For each ROCm version ensure you check the [GPU Support and OS Compatibility (Linux)](https://rocm.docs.amd.com/en/docs-5.7.0/release/gpu_os_support.html) first prior to obtaining and using an AMD GPU.
 
 Pytorch Version List TBD
 
@@ -30,7 +34,8 @@ Pytorch Version List TBD
 ## CPU
 [LINK](https://www.newegg.com/amd-ryzen-9-5900x/p/N82E16819113664?Item=N82E16819113664) AMD Ryzen 9 5900X - Ryzen 9 5000 Series Vermeer (Zen 3) 12-Core 3.7 GHz Socket AM4 105W None Integrated Graphics Desktop Processor - 100-100000061WOF
 
-## GPU
+## GPUs
+[LINK](https://www.amazon.com/MSI-RX-6600-XT-MECH/dp/B09BK8NCPB/ref=sr_1_2?crid=3RW8YE5OCGXNU&keywords=MSI+Gaming+AMD+Radeon+RX+6600+XT+128-bit+8GB&qid=1704119107&sprefix=msi+gaming+amd+radeon+rx+6600+xt+128-bit+8gb%2Caps%2C58&sr=8-2) MSI Gaming AMD Radeon RX 6600 XT 128-bit 8GB GDDR6 DP/HDMI Dual Torx Fans FreeSync DirectX 12 VR Ready OC Graphics Card (RX 6600 XT MECH 2X 8G OC) 
 [LINK](https://www.newegg.com/msi-radeon-rx-7900-xtx-rx-7900-xtx-gaming-trio-classic-24g/p/N82E16814137781?Item=N82E16814137781) MSI Gaming Radeon RX 7900 XTX 24GB GDDR6 PCI Express 4.0 ATX Video Card RX 7900 XTX GAMING TRIO CLASSIC 24G
 
 ## Hard Drive(s)
@@ -190,7 +195,7 @@ python3 -c "import torch; print(f'device name [0]:', torch.cuda.get_device_name(
 
 Expected result: 
 ```bash
-device name [0]: Radeon RX 7900 XTX
+device name [0]: AMD Radeon RX 6600 XT
 ```
 
 4. Enter command to display component information within the current PyTorch environment.
@@ -304,6 +309,62 @@ Accessibility
 
 * Open Access: The dataset is publicly available and can be easily accessed and used through various machine learning frameworks like TensorFlow, PyTorch, etc.
 
+0. If using the 6600 XT (gfx1032) use the following command
+```bash
+export HSA_OVERRIDE_GFX_VERSION=10.3.0 # This will allow the gfx1032 to work with pytorch
+```
+
+2. Run the following command to test the hello world.
+```bash
+python pytorch_mnist_numbers.py
+```
+
+Result:
+```bash
+(pytorch-rocm) flaniganp@amd-lite-machine:~/Documents/repos/amd-gpu-hello$ python pytorch_mnist_numbers.py 
+This is an experimnental Hello World using ROCm.
+	PyTorch Version: 2.0.1+rocm5.7
+	Torchvision Version: 0.15.2+rocm5.7
+	Using [cpu|cuda]: cuda
+	Using device: AMD Radeon RX 6600 XT
+	Devices Available 1
+Train Epoch: 1
+
+Test set: Average loss: 0.1162, Accuracy: 9656/10000 (97%)
+
+Train Epoch: 2
+
+Test set: Average loss: 0.0780, Accuracy: 9752/10000 (98%)
+
+Train Epoch: 3
+
+Test set: Average loss: 0.0617, Accuracy: 9809/10000 (98%)
+
+Train Epoch: 4
+
+Test set: Average loss: 0.0490, Accuracy: 9844/10000 (98%)
+
+Train Epoch: 5
+
+Test set: Average loss: 0.0451, Accuracy: 9843/10000 (98%)
+
+Train Epoch: 6
+
+Test set: Average loss: 0.0418, Accuracy: 9862/10000 (99%)
+
+Train Epoch: 7
+
+Test set: Average loss: 0.0383, Accuracy: 9868/10000 (99%)
+
+Train Epoch: 8
+
+Test set: Average loss: 0.0451, Accuracy: 9851/10000 (99%)
+
+Train Epoch: 9
+
+Test set: Average loss: 0.0362, Accuracy: 9881/10000 (99%)
+```
+
 ## Tensorflow Pre-requisites
 ### Note: Instructions for tensorflow with rocm 6.0.0 support for possible gfx1100 and gfx1030 directions reference [here](https://github.com/ROCmSoftwarePlatform/tensorflow-upstream/issues/1956) then [here](https://gist.github.com/briansp2020/1e8c3e5735087398ebfd9514f26a0007). As of the writing of these directions tensorflow-rocm does not have this version ready.
 
@@ -333,11 +394,8 @@ python
 
 4. The following is a bookmark until the 7900 XTX (gfx1100) starts working with ROCm. Note that docker was tried and resulted in the same message.
 ```bash
-import random
-import tensorflow as tf
-from tensorflow.keras import datasets, layers
-from tensorflow.python.platform import build_info as tf_build_info
-tf.config.list_physical_devices('GPU')
+from tensorflow.python.client import device_lib
+print(device_lib.list_local_devices())
 ```
 
 Result:
@@ -356,202 +414,178 @@ export HSA_OVERRIDE_GFX_VERSION=10.3.0 # This will allow the gfx1032 to work wit
 
 6. The following worked in the python terminal:
 ```bash
-(tensorflow-rocm) flaniganp@amd-lit-machine:~/Documents/repos/amd-gpu-hello$ python
-Python 3.10.13 | packaged by conda-forge | (main, Dec 23 2023, 15:36:39) [GCC 12.3.0] on linux
-Type "help", "copyright", "credits" or "license" for more information.
->>> from tensorflow.python.client import device_lib
-2023-12-31 20:00:29.188187: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
-To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
->>> print(device_lib.list_local_devices())
-2023-12-31 20:00:34.262795: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2023-12-31 20:00:34.282199: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2023-12-31 20:00:34.282247: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2023-12-31 20:00:34.282366: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2023-12-31 20:00:34.282408: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2023-12-31 20:00:34.282445: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2023-12-31 20:00:34.282471: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1639] Created device /device:GPU:0 with 7556 MB memory:  -> device: 0, name: AMD Radeon RX 6600 XT, pci bus id: 0000:2d:00.0
-[name: "/device:CPU:0"
-device_type: "CPU"
-memory_limit: 268435456
-locality {
-}
-incarnation: 2343097017648306979
-xla_global_id: -1
-, name: "/device:GPU:0"
-device_type: "GPU"
-memory_limit: 7923040256
-locality {
-  bus_id: 1
-  links {
-  }
-}
-incarnation: 9876148064928784728
-physical_device_desc: "device: 0, name: AMD Radeon RX 6600 XT, pci bus id: 0000:2d:00.0"
-xla_global_id: 416903419
-]
+from tensorflow.python.client import device_lib
+print(device_lib.list_local_devices())
 ```
 
 7. The following script will now work.
-   ```bash
-   python tensorflow-rocm.py
-   ```
+```bash
+python tensorflow-rocm.py
+```
 
 Result: 
 ```bash
-(tensorflow-rocm) flaniganp@amd-lit-machine:~/Documents/repos/amd-gpu-hello$ python tensorflow-rocm.py 
-2023-12-31 20:08:51.061805: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+2024-01-01 09:37:59.114894: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
 To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
 TensorFlow version: 2.13.0.570
 CUDA version: None
 cuDNN version: None
-2023-12-31 20:08:51.870628: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2023-12-31 20:08:51.884016: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2023-12-31 20:08:51.884065: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2023-12-31 20:08:51.884177: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-01-01 09:37:59.991442: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-01-01 09:38:00.006591: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-01-01 09:38:00.006647: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-01-01 09:38:00.006761: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
 
 GPU Details: {'device_name': 'AMD Radeon RX 6600 XT'}
+Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/train-labels-idx1-ubyte.gz
+29515/29515 [==============================] - 0s 0us/step
+Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/train-images-idx3-ubyte.gz
+26421880/26421880 [==============================] - 0s 0us/step
+Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/t10k-labels-idx1-ubyte.gz
+5148/5148 [==============================] - 0s 0us/step
+Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/t10k-images-idx3-ubyte.gz
+4422102/4422102 [==============================] - 0s 0us/step
 Original Label: 9
 One-Hot Encoded Label: [0. 0. 0. 0. 0. 0. 0. 0. 0. 1.]
-Label: 7
-Class Name: Sneaker
+Label: 1
+Class Name: Trouser
 Image Shape: (28, 28)
 Print the train image shape (60000, 28, 28).
 Print the train labels shape (60000,).
-2023-12-31 20:08:52.141613: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2023-12-31 20:08:52.141713: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2023-12-31 20:08:52.141754: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2023-12-31 20:08:52.141869: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2023-12-31 20:08:52.141916: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2023-12-31 20:08:52.141957: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2023-12-31 20:08:52.141981: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1639] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 7588 MB memory:  -> device: 0, name: AMD Radeon RX 6600 XT, pci bus id: 0000:2d:00.0
-2023-12-31 20:08:52.294782: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.498633: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.499161: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.501222: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.501822: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.502213: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.504239: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.505030: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:01.304567: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-01-01 09:38:01.304652: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-01-01 09:38:01.304689: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-01-01 09:38:01.304796: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-01-01 09:38:01.304838: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-01-01 09:38:01.304875: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-01-01 09:38:01.304897: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1639] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 7556 MB memory:  -> device: 0, name: AMD Radeon RX 6600 XT, pci bus id: 0000:2d:00.0
+2024-01-01 09:38:01.468501: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:01.702180: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:01.702731: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:01.704916: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:01.705515: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:01.705942: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:01.708065: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:01.708871: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
 Training model...
-2023-12-31 20:08:52.785612: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.787471: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.825286: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.825916: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.830358: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.831123: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.900568: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.901803: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.906232: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.906894: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.907427: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.907992: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.908492: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.908880: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.911438: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.912384: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.912746: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.916624: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.919487: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.921599: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:01.965532: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:01.967473: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.021397: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.022163: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.027477: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.028583: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.099869: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.101187: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.105876: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.106609: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.107197: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.107826: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.108394: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.108829: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.111439: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.112455: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.112850: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.116665: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.119706: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.122040: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
 Epoch 1/10
-2023-12-31 20:08:52.939920: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.941586: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.943255: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.944050: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.944806: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.945571: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.946023: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.946744: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.947158: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.951883: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.952331: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.960996: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.961421: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.962007: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:52.962410: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:53.239382: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:08:53.733246: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f231f4a96c0 initialized for platform ROCM (this does not guarantee that XLA will be used). Devices:
-2023-12-31 20:08:53.733271: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): AMD Radeon RX 6600 XT, AMDGPU ISA version: gfx1030
-2023-12-31 20:08:53.736158: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:255] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
-2023-12-31 20:08:53.884795: I ./tensorflow/compiler/jit/device_compiler.h:186] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
-1864/1875 [============================>.] - ETA: 0s - loss: 0.5325 - accuracy: 0.80802023-12-31 20:09:01.701389: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:01.701893: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:01.702301: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:01.758605: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:01.759347: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:01.764561: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:01.765291: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:01.776704: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:01.777232: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:01.781093: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:01.781760: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:01.782300: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:01.782872: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:01.785768: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:01.788881: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:01.791756: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:01.794046: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:01.794923: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:01.874774: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-1875/1875 [==============================] - 9s 4ms/step - loss: 0.5316 - accuracy: 0.8084 - val_loss: 0.4107 - val_accuracy: 0.8559
+2024-01-01 09:38:02.142350: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.144089: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.145705: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.146574: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.147379: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.148169: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.148654: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.149418: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.149855: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.154734: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.155182: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.165462: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.165944: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.166594: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.167032: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:02.463564: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:03.530729: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f4ff3c967e0 initialized for platform ROCM (this does not guarantee that XLA will be used). Devices:
+2024-01-01 09:38:03.530755: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): AMD Radeon RX 6600 XT, AMDGPU ISA version: gfx1030
+2024-01-01 09:38:03.533716: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:255] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+2024-01-01 09:38:03.727399: I ./tensorflow/compiler/jit/device_compiler.h:186] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+1868/1875 [============================>.] - ETA: 0s - loss: 0.5459 - accuracy: 0.80202024-01-01 09:38:11.761524: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:11.762324: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:11.762989: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:11.820229: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:11.820901: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:11.826612: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:11.827366: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:11.838967: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:11.839486: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:11.843582: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:11.844244: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:11.844802: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:11.845396: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:11.848352: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:11.851626: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:11.855061: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:11.857416: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:11.858299: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:11.938181: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+1875/1875 [==============================] - 10s 4ms/step - loss: 0.5457 - accuracy: 0.8022 - val_loss: 0.4102 - val_accuracy: 0.8505
 Epoch 2/10
-1862/1875 [============================>.] - ETA: 0s - loss: 0.3518 - accuracy: 0.87412023-12-31 20:09:12.733672: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:12.736675: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:12.738894: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-1875/1875 [==============================] - 11s 6ms/step - loss: 0.3519 - accuracy: 0.8741 - val_loss: 0.3432 - val_accuracy: 0.8769
+1863/1875 [============================>.] - ETA: 0s - loss: 0.3632 - accuracy: 0.87002024-01-01 09:38:19.907496: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:19.912569: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:19.916383: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+1875/1875 [==============================] - 8s 4ms/step - loss: 0.3634 - accuracy: 0.8699 - val_loss: 0.3704 - val_accuracy: 0.8653
 Epoch 3/10
-1853/1875 [============================>.] - ETA: 0s - loss: 0.3103 - accuracy: 0.88692023-12-31 20:09:17.201575: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:17.204493: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:17.206724: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-1875/1875 [==============================] - 7s 4ms/step - loss: 0.3103 - accuracy: 0.8870 - val_loss: 0.3344 - val_accuracy: 0.8797
+1870/1875 [============================>.] - ETA: 0s - loss: 0.3159 - accuracy: 0.88582024-01-01 09:38:27.277862: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:27.282865: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:27.287231: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+1875/1875 [==============================] - 7s 4ms/step - loss: 0.3159 - accuracy: 0.8858 - val_loss: 0.3324 - val_accuracy: 0.8832
 Epoch 4/10
-1869/1875 [============================>.] - ETA: 0s - loss: 0.2835 - accuracy: 0.89722023-12-31 20:09:28.142161: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:28.147057: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:28.150815: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-1875/1875 [==============================] - 9s 5ms/step - loss: 0.2836 - accuracy: 0.8971 - val_loss: 0.3157 - val_accuracy: 0.8832
+1872/1875 [============================>.] - ETA: 0s - loss: 0.2889 - accuracy: 0.89522024-01-01 09:38:43.167533: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:43.172763: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:43.176725: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+1875/1875 [==============================] - 16s 8ms/step - loss: 0.2890 - accuracy: 0.8951 - val_loss: 0.3347 - val_accuracy: 0.8816
 Epoch 5/10
-1873/1875 [============================>.] - ETA: 0s - loss: 0.2652 - accuracy: 0.90312023-12-31 20:09:35.235655: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:35.241208: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:35.245189: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-1875/1875 [==============================] - 7s 4ms/step - loss: 0.2651 - accuracy: 0.9031 - val_loss: 0.2909 - val_accuracy: 0.8940
+1875/1875 [==============================] - ETA: 0s - loss: 0.2698 - accuracy: 0.90222024-01-01 09:38:51.114836: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:51.119853: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:51.123796: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+1875/1875 [==============================] - 8s 4ms/step - loss: 0.2698 - accuracy: 0.9022 - val_loss: 0.2982 - val_accuracy: 0.8927
 Epoch 6/10
-1869/1875 [============================>.] - ETA: 0s - loss: 0.2481 - accuracy: 0.90912023-12-31 20:09:47.118881: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:47.123734: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:47.127474: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-1875/1875 [==============================] - 12s 6ms/step - loss: 0.2480 - accuracy: 0.9091 - val_loss: 0.2821 - val_accuracy: 0.9002
+1865/1875 [============================>.] - ETA: 0s - loss: 0.2517 - accuracy: 0.90902024-01-01 09:38:58.498805: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:58.503742: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:38:58.507554: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+1875/1875 [==============================] - 7s 4ms/step - loss: 0.2518 - accuracy: 0.9089 - val_loss: 0.3032 - val_accuracy: 0.8926
 Epoch 7/10
-1865/1875 [============================>.] - ETA: 0s - loss: 0.2345 - accuracy: 0.91312023-12-31 20:09:56.939045: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:56.943949: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:09:56.947790: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-1875/1875 [==============================] - 10s 5ms/step - loss: 0.2348 - accuracy: 0.9129 - val_loss: 0.2852 - val_accuracy: 0.8963
+1874/1875 [============================>.] - ETA: 0s - loss: 0.2382 - accuracy: 0.91342024-01-01 09:39:06.015766: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:39:06.020733: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:39:06.024544: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+1875/1875 [==============================] - 8s 4ms/step - loss: 0.2382 - accuracy: 0.9134 - val_loss: 0.2829 - val_accuracy: 0.8956
 Epoch 8/10
-1865/1875 [============================>.] - ETA: 0s - loss: 0.2220 - accuracy: 0.91842023-12-31 20:10:13.090012: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:10:13.093251: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:10:13.095695: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-1875/1875 [==============================] - 17s 9ms/step - loss: 0.2219 - accuracy: 0.9184 - val_loss: 0.2788 - val_accuracy: 0.9000
+1861/1875 [============================>.] - ETA: 0s - loss: 0.2272 - accuracy: 0.91742024-01-01 09:39:13.237387: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:39:13.243402: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:39:13.247480: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+1875/1875 [==============================] - 7s 4ms/step - loss: 0.2272 - accuracy: 0.9174 - val_loss: 0.3059 - val_accuracy: 0.8899
 Epoch 9/10
-1866/1875 [============================>.] - ETA: 0s - loss: 0.2109 - accuracy: 0.92262023-12-31 20:10:25.807495: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:10:25.810573: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:10:25.812873: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-1875/1875 [==============================] - 13s 7ms/step - loss: 0.2108 - accuracy: 0.9227 - val_loss: 0.3079 - val_accuracy: 0.8888
+1863/1875 [============================>.] - ETA: 0s - loss: 0.2189 - accuracy: 0.91922024-01-01 09:39:21.041438: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:39:21.045696: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:39:21.049384: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+1875/1875 [==============================] - 8s 4ms/step - loss: 0.2185 - accuracy: 0.9193 - val_loss: 0.2896 - val_accuracy: 0.8965
 Epoch 10/10
-1863/1875 [============================>.] - ETA: 0s - loss: 0.2024 - accuracy: 0.92452023-12-31 20:10:40.572477: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:10:40.575667: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:10:40.577970: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-1875/1875 [==============================] - 15s 8ms/step - loss: 0.2023 - accuracy: 0.9246 - val_loss: 0.2773 - val_accuracy: 0.9013
+1869/1875 [============================>.] - ETA: 0s - loss: 0.2081 - accuracy: 0.92322024-01-01 09:39:28.668377: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:39:28.673420: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:39:28.677318: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+1875/1875 [==============================] - 8s 4ms/step - loss: 0.2080 - accuracy: 0.9233 - val_loss: 0.2971 - val_accuracy: 0.8981
 Evaluating model...
-2023-12-31 20:10:41.911983: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:10:41.917158: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:10:41.933317: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:10:41.937954: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:10:41.940764: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:10:41.942969: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-313/313 [==============================] - 6s 18ms/step - loss: 0.2773 - accuracy: 0.9013
+2024-01-01 09:39:29.246230: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:39:29.251652: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:39:29.258628: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:39:29.263333: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:39:29.266280: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:39:29.268687: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+313/313 [==============================] - 1s 2ms/step - loss: 0.2971 - accuracy: 0.8981
 /home/flaniganp/mambaforge/envs/tensorflow-rocm/lib/python3.10/site-packages/keras/src/engine/training.py:3000: UserWarning: You are saving your model as an HDF5 file via `model.save()`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')`.
   saving_api.save_model(
-2023-12-31 20:10:47.678182: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:10:47.678816: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:10:47.679957: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:10:47.681988: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2023-12-31 20:10:47.682583: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:39:29.893372: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:39:29.894316: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:39:29.896121: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:39:29.899235: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
+2024-01-01 09:39:29.900196: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
 ```
