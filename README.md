@@ -163,7 +163,7 @@ mamba create --name pytorch-rocm python=3.10 -y
 mamba activate pytorch-rocm
 ```
 
-3Install pip dependencies for rocm in Base OS Python section.
+3. Install pip dependencies for rocm in Base OS Python section.
 
 ## Verify pytorch installation.
 1. Verify if Pytorch is installed and detecting the GPU compute device.
