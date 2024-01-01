@@ -7,6 +7,12 @@ One thing of annoyance is the long term support of GPUs with a ongoing comment s
 
 Tensorflow directions yet to be implemented from [here](https://cprimozic.net/notes/posts/setting-up-tensorflow-with-rocm-on-7900-xtx/) for the 7900 XTX. 
 
+[ROCM Version List](https://rocm.docs.amd.com/en/latest/release/versions.html)
+
+Pytorch Version List TBD
+
+[Tensorflow-rocm Version List](https://github.com/ROCmSoftwarePlatform/tensorflow-upstream/blob/develop-upstream/rocm_docs/tensorflow-rocm-release.md)
+
 # Build
 ## Case
 [LINK](https://www.newegg.com/black-jonsbo-mesh-screen-mtx-case-micro-atx/p/2AM-006A-000B8?Item=9SIAY3SJNH9664) JONSBO D31 MESH SC BLACK Micro ATX Computer Case with Sub HD-LCD Display, M-ATX/DTX/ITX Mainboard/Support RTX 4090(335-400mm) GPU 360/280AIO,Power ATX/SFX: 100mm-220mm Multiple Tool-free Design,Black
