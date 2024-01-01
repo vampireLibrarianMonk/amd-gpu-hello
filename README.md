@@ -5,6 +5,8 @@ The GPU referred to in this tutorial is an MSI Gaming Radeon 7900 XTX 24 GB.
 
 One thing of annoyance is the long term support of GPUs with a ongoing comment section [here](https://github.com/ROCm/ROCm/issues/2308). To summarize NVIDIA usually supports their GPUs for 8+ years and it looks like AMD only for ~4 years. Keep this in mind when working with these GPUs!
 
+Tensorflow directions yet to be implemented from [here](https://cprimozic.net/notes/posts/setting-up-tensorflow-with-rocm-on-7900-xtx/) for the 7900 XTX. 
+
 # Build
 ## Case
 [LINK](https://www.newegg.com/black-jonsbo-mesh-screen-mtx-case-micro-atx/p/2AM-006A-000B8?Item=9SIAY3SJNH9664) JONSBO D31 MESH SC BLACK Micro ATX Computer Case with Sub HD-LCD Display, M-ATX/DTX/ITX Mainboard/Support RTX 4090(335-400mm) GPU 360/280AIO,Power ATX/SFX: 100mm-220mm Multiple Tool-free Design,Black
