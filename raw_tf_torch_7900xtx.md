@@ -110,7 +110,8 @@ wget https://repo.radeon.com/rocm/rocm.gpg.key -O - | \
 
 3. Register kernel-mode driver. Add the AMDGPU repository for the driver.
 ```bash
-echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/amdgpu/6.0/ubuntu jammy main" \
+ver=5.7
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/amdgpu/$ver/ubuntu jammy main" \
     | sudo tee /etc/apt/sources.list.d/amdgpu.list
 sudo apt update
 ```
@@ -150,7 +151,7 @@ sudo apt install "linux-headers-$(uname -r)" "linux-modules-extra-$(uname -r)"
 
 9. Configure PATH. Add binary paths to the PATH environment variable.
 ```bash
-export PATH=$PATH:/opt/rocm-6.0/bin
+export PATH=$PATH:/opt/rocm-6.0.0/bin
 ```
 
 ## Check settings
@@ -160,11 +161,15 @@ dkms status
 ```
 2. Verify ROCm installation.
 ```bash
-/opt/rocm-6.0/bin/rocminfo
-/opt/rocm-6.0/bin/clinfo
+rocminfo
 ```
 
-3. Verify package installation.
+3. Use the following command to actively monitor your gpu:
+```bash
+watch -n 1 rocm-smi
+```
+
+4. Verify package installation.
 ```bash
 sudo apt list --installed
 ```
@@ -180,9 +185,19 @@ sudo apt install git -y
 git clone https://github.com/vampireLibrarianMonk/amd-gpu-hello.git
 ```
 
-## Python environment setup
+## Python environment setup via Mamba Environment Manager
 Substitute conda for mamba.
 [Command Cheat Sheet](https://www.datacamp.com/cheat-sheet/conda-cheat-sheet)
+
+1. We’ll use the Mamba package manager to create the Python environment. You can learn more about it in my getting started tutorial.
+
+The following bash commands will download the latest release, install it, and relaunch the current bash shell to apply the relevant changes:
+```bash
+wget "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
+bash Mambaforge-$(uname)-$(uname -m).sh -b
+~/mambaforge/bin/mamba init
+bash
+```
 
 ### Pytorch
 
@@ -204,14 +219,29 @@ pip3 install --force-reinstall torch-2.0.1+rocm5.7-cp310-cp310-linux_x86_64.whl 
 python3 -c 'import torch' 2> /dev/null && echo 'Success' || echo 'Failure'
 ```
 
+Result: 
+```bash
+Success
+```
+
 4. Enter command to test if the GPU is available.
 ```bash
 python3 -c 'import torch; print(torch.cuda.is_available())'
 ```
 
+Result:
+```bash
+True
+```
+
 5. Enter command to display installed GPU device name.
 ```bash
 python3 -c "import torch; print(f'device name [0]:', torch.cuda.get_device_name(0))"
+```
+
+Result:
+```bash
+device name [0]: Radeon RX 7900 XTX
 ```
 
 6. Run the preliminary hello world
@@ -220,6 +250,18 @@ python pytorch_mnist_numbers.py
 ```
 
 Result:
+```bash
+This is an experimnental Hello World using ROCm.
+	PyTorch Version: 2.0.1+rocm5.7
+	Torchvision Version: 0.15.2+rocm5.7
+	Using [cpu|cuda]: cuda
+	Using device: Radeon RX 7900 XTX
+	Devices Available 1
+
+Training log info...
+
+Test set: Average loss: 0.0446, Accuracy: 9842/10000 (98%)
+```
 
 ### Tensorflow
 1. Create tensorflow mamba environment
@@ -236,7 +278,7 @@ pip install http://ml-ci.amd.com:21096/job/tensorflow/job/nightly-rocmfork-devel
 
 3. Had to install this library as well
 ```bash
-pip3 install requests
+pip install requests
 ```
 
 4. Default way I test if tensorflow can see the GPU
