@@ -54,6 +54,13 @@ ROCm is primarily designed for AMD GPUs, including Radeon Instinct and Radeon Pr
 # PyTorch:
 PyTorch is an open-source deep learning framework known for its dynamic computation graph, making it flexible for experimentation and debugging. It's Pythonic, easy to learn, and widely used in research for tasks like computer vision, natural language processing, and reinforcement learning.
 
+Version Used:
+  * [torch==2.3.0.dev20240110+rocm5.7]([2.3.0.dev20240110+rocm5.7](https://download.pytorch.org/whl/nightly/rocm5.7/torch-2.3.0.dev20240110%2Brocm5.7-cp310-cp310-linux_x86_64.whl))
+  * [torchvision==0.18.0.dev20240110+rocm5.7](https://download.pytorch.org/whl/nightly/rocm5.7/torchvision-0.18.0.dev20240110%2Brocm5.7-cp310-cp310-linux_x86_64.whl)
+
+## Comments: 
+  * Pytorch has not been as big of a pain setting up as Tensorflow. Go back in versions and try it, unless asked I'll just try later versions). 
+
 # TensorFlow:
 TensorFlow, developed by Google Brain, is an open-source machine learning framework with a static computation graph, optimized for production deployments. It's scalable, works on CPUs and GPUs, and offers TensorFlow Serving for model deployment. TensorFlow provides high-level APIs like Keras and is used in various machine learning applications, including computer vision, natural language processing, and recommendation systems.
 
@@ -753,9 +760,7 @@ mamba activate pytorch-rocm
 
 2. Install [reference](https://rocm.docs.amd.com/projects/radeon/en/latest/docs/install/install-pytorch.html)
 ```bash
-wget https://repo.radeon.com/rocm/manylinux/rocm-rel-5.7/torch-2.0.1%2Brocm5.7-cp310-cp310-linux_x86_64.whl
-wget https://repo.radeon.com/rocm/manylinux/rocm-rel-5.7/torchvision-0.15.2%2Brocm5.7-cp310-cp310-linux_x86_64.whl
-pip3 install --force-reinstall torch-2.0.1+rocm5.7-cp310-cp310-linux_x86_64.whl torchvision-0.15.2+rocm5.7-cp310-cp310-linux_x86_64.whl 
+pip install --pre torch==2.3.0.dev20240110+rocm5.7 torchvision==0.18.0.dev20240110+rocm5.7 --index-url https://download.pytorch.org/whl/nightly/rocm5.7/
 ```
 
 3. Verify if Pytorch is installed and detecting the GPU compute device.
@@ -795,16 +800,6 @@ python pytorch_mnist_numbers.py
 
 Result:
 ```bash
-This is an experimnental Hello World using ROCm.
-	PyTorch Version: 2.0.1+rocm5.7
-	Torchvision Version: 0.15.2+rocm5.7
-	Using [cpu|cuda]: cuda
-	Using device: Radeon RX 7900 XTX
-	Devices Available 1
-
-Training log info...
-
-Test set: Average loss: 0.0446, Accuracy: 9842/10000 (98%)
 ```
 
 ### Tensorflow
@@ -836,3 +831,5 @@ python tensorflow-rocm.py
 ```
 
 Result:
+```bash
+```
