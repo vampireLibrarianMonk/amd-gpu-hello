@@ -1,3 +1,7 @@
+# Python
+
+Version used 3.10
+
 # Radeon Open Compute (ROCm)
 
 Version Used[6.0.0](https://rocm.docs.amd.com/en/docs-6.0.0/)
@@ -46,6 +50,21 @@ ROCm is primarily designed for AMD GPUs, including Radeon Instinct and Radeon Pr
 
 [ROCM Documentation]()
 [Compatible GPU List]()
+
+# PyTorch:
+PyTorch is an open-source deep learning framework known for its dynamic computation graph, making it flexible for experimentation and debugging. It's Pythonic, easy to learn, and widely used in research for tasks like computer vision, natural language processing, and reinforcement learning.
+
+# TensorFlow:
+TensorFlow, developed by Google Brain, is an open-source machine learning framework with a static computation graph, optimized for production deployments. It's scalable, works on CPUs and GPUs, and offers TensorFlow Serving for model deployment. TensorFlow provides high-level APIs like Keras and is used in various machine learning applications, including computer vision, natural language processing, and recommendation systems.
+
+Version Used [2.16.0.600-dev20240109](http://ml-ci.amd.com:21096/job/tensorflow/job/nightly-rocmfork-develop-upstream/job/nightly-build-whl/lastSuccessfulBuild/artifact/packages-3.10/tf_nightly_rocm-2.16.0.600.dev20240109-cp310-cp310-manylinux2014_x86_64.whl)
+
+## Comments:
+ * [2.15.0.600](http://ml-ci.amd.com:21096/job/tensorflow/job/release-rocmfork-r215-rocm-enhanced/job/release-build-whl/) specifically this [one](http://ml-ci.amd.com:21096/job/tensorflow/job/release-rocmfork-r215-rocm-enhanced/job/release-build-whl/lastSuccessfulBuild/artifact/packages-3.10/tensorflow_rocm-2.15.0.600-cp310-cp310-manylinux2014_x86_64.whl) works.
+ * 2.14.0.600: The supported AMDGPU versions are gfx1030gfx1100, gfx900, gfx906, gfx908, gfx90a, gfx940, gfx941, gfx942.
+   * Yes a comma prevents this version from running.
+   * Recompilation at tensorflow/compiler/xla/stream_executor/device_description.h line 184, which takes an hour on the above build will get tried and this instruction updated if it works. 
+ * 2.13.1.600: The supported AMDGPU versions are gfx1030, gfx900, gfx906, gfx908, gfx90a, gfx940, gfx941, gfx942.
 
 # Current GPU
 The [MSI Gaming Radeon RX 7900 XTX](https://www.amd.com/en/products/graphics/amd-radeon-rx-7900xtx) is a high-end graphics card designed for gaming and demanding graphics workloads. With 24GB of GDDR6 memory and support for PCI Express 4.0, it delivers excellent performance and is suitable for gamers and professionals looking for top-tier graphics capabilities.
@@ -159,30 +178,60 @@ sudo ldconfig
 sudo usermod -a -G render,video $LOGNAME
 ```
 
-10. Note that rocm-libs and rccl are related to AMD's ROCm (Radeon Open Compute) platform, which is an open-source framework for GPU computing on AMD GPUs. Here's a brief explanation of each:
-    
-  * rocm-libs: rocm-libs stands for ROCm Libraries.
-    
-    * These libraries are part of the ROCm software stack, which is designed to provide an open-source GPU compute platform for AMD GPUs.
+10. Install necessary ROCm packages:
+
+  * rocm-dkms (ROCm Dynamic Kernel Module Support):
+
+    * rocm-dkms is a package that provides Dynamic Kernel Module Support (DKMS) for the ROCm (Radeon Open Compute) software stack.
       
-    * ROCm Libraries include various GPU-accelerated libraries and tools for high-performance computing (HPC), scientific computing, machine learning, and deep learning workloads.
-      
-    * Some of the key libraries included in rocm-libs are ROCm Math Libraries (RocBLAS, rocSOLVER, etc.), ROCm Communication Libraries (RCCL, HIPCL, etc.), and other optimized GPU libraries.
+      * Dynamic Kernel Module Support (DKMS):
+        
+      * DKMS is a framework that enables automatic building and installation of kernel modules when the Linux kernel is updated.
+        
+      * It ensures that ROCm-specific kernel modules stay compatible with different kernel versions without manual intervention.
+        
+      * Ensures ROCm compatibility with various Linux kernels, making it easier to maintain ROCm functionality.
+
+  * rocm-libs:
+    
+      * rocm-libs contains GPU-accelerated libraries and tools for high-performance computing, machine learning, and more, as part of the ROCm software stack.
+        
+        * ROCm is an open-source framework for GPU computing on AMD GPUs.
+          
+        * rocm-libs is a fundamental part of this stack, providing essential libraries.
+          
+        * ROCm Libraries include optimized GPU libraries such as ROCm Math Libraries (RocBLAS, rocSOLVER) and ROCm Communication Libraries (RCCL).
+          
+        * These libraries enhance performance for various computing workloads.
+          
+        * Provides GPU-accelerated capabilities for scientific computing, machine learning, and deep learning tasks.
+          
+        * Optimized libraries improve the efficiency of GPU-based applications.
 
   * rccl (ROCm Communication Collectives Library):
     
-    * rccl is a specific library within the ROCm stack.
+    * rccl is a specific library within the ROCm stack, designed to optimize GPU communication and synchronization for parallel computing workloads.
       
-    * It is designed to provide optimized GPU communication primitives and collectives for parallel computing workloads.
-      
-    * rccl is used to improve communication and synchronization between GPUs in multi-GPU systems, making it particularly valuable for applications that require distributed GPU computing, like deep learning training on multiple GPUs.
-      
-    * This library enhances the performance and scalability of GPU-based parallel computing applications by providing efficient implementations of communication operations like reductions, broadcasts, and all-reduces across multiple GPUs.
+      * rccl focuses on optimizing communication primitives and collectives for multi-GPU parallel computing.
+        
+      * It enhances synchronization and data exchange between GPUs.
+        
+      * Valuable for distributed GPU computing, especially in deep learning training across multiple GPUs.
+        
+      * Improves the performance and scalability of GPU-accelerated parallel computing applications.
+        
+      * Enables efficient communication and coordination between GPUs in multi-GPU systems.
 
-When you install rocm-libs and rccl, you are essentially adding these GPU-accelerated libraries to your system. These libraries can be used by software applications and frameworks that require GPU acceleration and are compatible with ROCm, such as some machine learning frameworks and HPC applications.
+Why They Are Important:
+
+    rocm-dkms: Ensures that ROCm remains compatible with different Linux kernel versions, simplifying the maintenance of GPU compute capabilities on AMD GPUs.
+
+    rocm-libs: Provides essential GPU-accelerated libraries for various high-performance computing tasks, making it easier to develop efficient applications.
+
+    rccl: Optimizes GPU communication for parallel computing, enhancing the performance and scalability of multi-GPU applications, particularly valuable in deep learning and scientific computing.
 
 ```bash
-sudo apt install rocm-libs rccl -y
+sudo apt install rocm-dkms rocm-libs rccl -y
 ```
 
 11. Configure PATH. Add binary paths to the PATH environment variable.
@@ -393,14 +442,19 @@ Device  [Model : Revision]    Temp    Power  Partitions      SCLK   MCLK     Fan
 
 ```
 
+4. Install mesa-opencl-icd
+```bash
+sudo apt install mesa-opencl-icd -y
+```
+
 clinfo is a command-line utility that provides detailed information about OpenCL (Open Computing Language) platforms and devices available on your system. It displays information such as the number of OpenCL platforms, the types of devices (e.g., GPUs, CPUs) supported by each platform, their capabilities, and other relevant details. clinfo is commonly used by developers and users to inspect and diagnose OpenCL configurations on their systems, helping them understand the available computing resources for GPU-accelerated applications and tasks.
 
-4. Install and check clinfo
+5. Install and check clinfo
 ```bash
 sudo apt install clinfo -y
 ```
 
-5. Check clinfo:
+6. Check clinfo:
 ```bash
 clinfo
 ```
@@ -663,11 +717,6 @@ NULL platform behavior
 ```
 
 mesa-opencl-icd is an implementation of the OpenCL (Open Computing Language) ICD (Installable Client Driver) for Mesa, an open-source graphics library. It allows software applications to utilize OpenCL for GPU-accelerated computing tasks on systems with Mesa-supported graphics hardware. This package helps bridge the gap between Mesa's graphics capabilities and OpenCL, enabling developers to run OpenCL applications on systems using Mesa graphics drivers.
-
-6. Install mesa-opencl-icd
-```bash
-sudo apt install mesa-opencl-icd -y
-```
 
 ## Repo setup
 1. Install git
