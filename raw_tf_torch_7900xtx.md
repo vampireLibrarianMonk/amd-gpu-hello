@@ -187,7 +187,17 @@ sudo apt install rocm-libs rccl -y
 
 11. Configure PATH. Add binary paths to the PATH environment variable.
 ```bash
-export PATH=$PATH:/opt/rocm-6.0.0/bin
+echo 'export PATH=$PATH:/opt/rocm-6.0.0/bin' >> ~/.bashrc
+```
+
+12. Refresh terminal
+```bash
+source ~./bashrc
+```
+
+13. Reboot
+```bash
+sudo reboot
 ```
 
 ## Check settings
