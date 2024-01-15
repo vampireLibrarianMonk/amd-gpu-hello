@@ -142,7 +142,7 @@ sudo reboot
 
 7. Install ROCm packages
 ```bash
-sudo apt install rocm-hip-sdk
+sudo apt update && sudo install rocm-hip-sdk -y
 ```
 
 8. Instruct the system linker where to find shared objects (.so-files) for ROCm applications.
