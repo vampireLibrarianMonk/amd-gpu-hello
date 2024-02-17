@@ -58,13 +58,17 @@ Pytorch Version List TBD
 ## Radeon™ Software for Linux® version 23.20.00.48 for Ubuntu 22.04.3 HWE with [ROCm 5.7](https://rocm.docs.amd.com/en/docs-5.7.1/release/gpu_os_support.html) [ROCm latest](https://rocm.docs.amd.com/en/latest/)
 I used the following [link](https://www.amd.com/en/support/graphics/amd-radeon-rx-7000-series/amd-radeon-rx-7900-series/amd-radeon-rx-7900xtx) to get my GPU's supporting software installed.
 
-1. The following steps were used to get the software installed.
+1. The following [steps](https://rocm.docs.amd.com/projects/install-on-linux/en/docs-6.0.0/tutorial/quick-start.html) were used to get the software installed.
 ```bash
-sudo apt update
-wget https://repo.radeon.com/amdgpu-install/23.20.00.48/ubuntu/jammy/amdgpu-install_5.7.00.48.50700-1_all.deb
-sudo apt install ./amdgpu-install_5.7.00.48.50700-1_all.deb
-sudo amdgpu-install -y --usecase=graphics,rocm
+sudo apt install "linux-headers-$(uname -r)" "linux-modules-extra-$(uname -r)"
+# See prerequisites. Adding current user to Video and Render groups
 sudo usermod -a -G render,video $LOGNAME
+wget https://repo.radeon.com/amdgpu-install/6.0/ubuntu/jammy/amdgpu-install_6.0.60000-1_all.deb
+sudo apt install ./amdgpu-install_6.0.60000-1_all.deb
+sudo apt update
+sudo apt install amdgpu-dkms
+sudo apt install rocm-hip-libraries
+echo Please reboot system for all settings to take effect.
 ```
 
 ## Monitoring GPU
@@ -142,10 +146,9 @@ bash
 sudo apt install python3-pip -y
 ```
 
+2. Using these steps from [here](https://rocm.docs.amd.com/projects/install-on-linux/en/docs-6.0.0/how-to/3rd-party/pytorch-install.html#using-a-wheels-package). Note that I updated the rocm version in the url.
 ```bash
-wget https://repo.radeon.com/rocm/manylinux/rocm-rel-5.7/torch-2.0.1%2Brocm5.7-cp310-cp310-linux_x86_64.whl
-wget https://repo.radeon.com/rocm/manylinux/rocm-rel-5.7/torchvision-0.15.2%2Brocm5.7-cp310-cp310-linux_x86_64.whl
-pip3 install --force-reinstall torch-2.0.1+rocm5.7-cp310-cp310-linux_x86_64.whl torchvision-0.15.2+rocm5.7-cp310-cp310-linux_x86_64.whl 
+pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/rocm6.0/
 ```
 
 This may take several minutes. 
@@ -153,7 +156,6 @@ This may take several minutes.
 Important! AMD recommends proceeding with ROCm WHLs available at repo.radeon.com. 
 
 The ROCm WHLs available at PyTorch.org are not tested extensively by AMD as the WHLs change regularly when the nightly builds are updated.
-
 
 ## Mamba Pytorch Installation
 1. Create a Python Environment
@@ -206,27 +208,27 @@ python3 -m torch.utils.collect_env
 Expected result:
 ```bash
 Collecting environment information...
-PyTorch version: 2.0.1+rocm5.7
+PyTorch version: 2.3.0.dev20240217+rocm6.0
 Is debug build: False
 CUDA used to build PyTorch: N/A
-ROCM used to build PyTorch: 5.7.31921-d1770ee1b
+ROCM used to build PyTorch: 6.0.32830-d62f6a171
 
-OS: Ubuntu 22.04.3 LTS (x86_64)
+OS: Ubuntu 22.04.4 LTS (x86_64)
 GCC version: (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
 Clang version: Could not collect
-CMake version: version 3.27.9
+CMake version: Could not collect
 Libc version: glibc-2.35
 
-Python version: 3.10.12 (main, Nov 20 2023, 15:14:05) [GCC 11.4.0] (64-bit runtime)
-Python platform: Linux-6.2.0-37-generic-x86_64-with-glibc2.35
+Python version: 3.10.13 | packaged by conda-forge | (main, Dec 23 2023, 15:36:39) [GCC 12.3.0] (64-bit runtime)
+Python platform: Linux-6.5.0-18-generic-x86_64-with-glibc2.35
 Is CUDA available: True
 CUDA runtime version: Could not collect
 CUDA_MODULE_LOADING set to: LAZY
-GPU models and configuration: Radeon RX 7900 XTX
+GPU models and configuration: Radeon RX 7900 XTX (gfx1100)
 Nvidia driver version: Could not collect
 cuDNN version: Could not collect
-HIP runtime version: 5.7.31921
-MIOpen runtime version: 2.20.0
+HIP runtime version: 6.0.32830
+MIOpen runtime version: 3.0.0
 Is XNNPACK available: True
 
 CPU:
@@ -247,7 +249,7 @@ Stepping:                           2
 Frequency boost:                    enabled
 CPU max MHz:                        4950.1948
 CPU min MHz:                        2200.0000
-BogoMIPS:                           7400.07
+BogoMIPS:                           7400.50
 Flags:                              fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibrs ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip pku ospke vaes vpclmulqdq rdpid overflow_recov succor smca fsrm
 Virtualization:                     AMD-V
 L1d cache:                          384 KiB (12 instances)
@@ -271,11 +273,17 @@ Vulnerability Srbds:                Not affected
 Vulnerability Tsx async abort:      Not affected
 
 Versions of relevant libraries:
-[pip3] numpy==1.26.2
-[pip3] pytorch-triton-rocm==2.0.2
-[pip3] torch==2.0.1+rocm5.7
-[pip3] torchvision==0.15.2+rocm5.7
-[conda] Could not collect
+[pip3] numpy==1.24.1
+[pip3] pytorch-triton-rocm==3.0.0+0a22a91d04
+[pip3] torch==2.3.0.dev20240217+rocm6.0
+[pip3] torchaudio==2.2.0.dev20240217+rocm6.0
+[pip3] torchvision==0.18.0.dev20240217+rocm6.0
+[conda] numpy                     1.24.1                   pypi_0    pypi
+[conda] pytorch-triton-rocm       3.0.0+0a22a91d04          pypi_0    pypi
+[conda] torch                     2.3.0.dev20240217+rocm6.0          pypi_0    pypi
+[conda] torchaudio                2.2.0.dev20240217+rocm6.0          pypi_0    pypi
+[conda] torchvision               0.18.0.dev20240217+rocm6.0          pypi_0    pypi
+
 ```
 
 Environment set-up is complete, and the system is ready for use with PyTorch to work with machine learning models, and algorithms.
