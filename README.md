@@ -2,18 +2,13 @@
 This repo was created for anyone curious as to what is going on with AMD GPUs,ROCm (Radeon Open Compute) and the machine learning space. 
 
 The GPUs referenced in this tutorial:
-  * AMD Radeon RX 6600 XT 8 GB.
   * MSI Gaming Radeon 7900 XTX 24 GB.
 
 One thing of annoyance is the long term support of GPUs with a ongoing comment section [here](https://github.com/ROCm/ROCm/issues/2308). To summarize NVIDIA usually supports their GPUs for 8+ years and it looks like AMD only for ~4 years. Keep this in mind when working with these GPUs!
 
-Tensorflow directions yet to be implemented from [here](https://cprimozic.net/notes/posts/setting-up-tensorflow-with-rocm-on-7900-xtx/) for the 7900 XTX. 
-
 [ROCM Version List](https://rocm.docs.amd.com/en/latest/release/versions.html)
 
-For each ROCm version ensure you check the [GPU Support and OS Compatibility (Linux)](https://rocm.docs.amd.com/en/docs-5.7.0/release/gpu_os_support.html) first prior to obtaining and using an AMD GPU.
-
-Pytorch Version List TBD
+For each ROCm version ensure you check the [GPU Support and OS Compatibility (Linux)](https://rocm.docs.amd.com/projects/install-on-linux/en/docs-6.0.0/reference/system-requirements.html) first prior to obtaining and using an AMD GPU.
 
 [Tensorflow-rocm Version List](https://github.com/ROCmSoftwarePlatform/tensorflow-upstream/blob/develop-upstream/rocm_docs/tensorflow-rocm-release.md)
 
@@ -55,26 +50,260 @@ Pytorch Version List TBD
 [LINK](https://www.newegg.com/deepcool-r-pq850m-fa0b-us-850-w/p/N82E16817328036?Item=N82E16817328036) Deepcool PQ850M R-PQ850M-FA0B-US 850 W ATX12V V2.4 80 PLUS GOLD Certified Full Modular Active PFC Power Supply
 
 # Getting Started
-## Radeon™ Software for Linux® version 23.20.00.48 for Ubuntu 22.04.3 HWE with [ROCm 5.7](https://rocm.docs.amd.com/en/docs-5.7.1/release/gpu_os_support.html) [ROCm latest](https://rocm.docs.amd.com/en/latest/)
-I used the following [link](https://www.amd.com/en/support/graphics/amd-radeon-rx-7000-series/amd-radeon-rx-7900-series/amd-radeon-rx-7900xtx) to get my GPU's supporting software installed.
-
-1. The following [steps](https://rocm.docs.amd.com/projects/install-on-linux/en/docs-6.0.0/tutorial/quick-start.html) were used to get the software installed.
+## Radeon Open Compute (ROCm) Driver and Package Installation
+ROCm Platform: Offers a comprehensive foundation for HPC, machine learning, and scientific research on AMD GPUs.
+ 
+Installation instructions take from [here](https://rocm.docs.amd.com/projects/install-on-linux/en/docs-6.0.0/how-to/native-install/ubuntu.html)
+ 
+1. Download and convert the package signing key.   
 ```bash
-sudo apt install "linux-headers-$(uname -r)" "linux-modules-extra-$(uname -r)"
-# See prerequisites. Adding current user to Video and Render groups
-sudo usermod -a -G render,video $LOGNAME
-wget https://repo.radeon.com/amdgpu-install/6.0/ubuntu/jammy/amdgpu-install_6.0.60000-1_all.deb
-sudo apt install ./amdgpu-install_6.0.60000-1_all.deb
+# Make the directory if it doesn't exist yet.
+# This location is recommended by the distribution maintainers.
+sudo mkdir --parents --mode=0755 /etc/apt/keyrings
+
+# Download the key, convert the signing-key to a full
+# keyring required by apt and store in the keyring directory
+wget https://repo.radeon.com/rocm/rocm.gpg.key -O - | gpg --dearmor | sudo tee /etc/apt/keyrings/rocm.gpg > /dev/null
+```   
+ 
+Note: 
+The GPG key may change; ensure it is updated when installing a new release. If the key signature verification fails while updating, re-add the key from the ROCm to the apt repository as mentioned above. The current rocm.gpg.key is not available in a standard key ring distribution but has the following SHA1 sum hash: 73f5d8100de6048aa38a8b84cd9a87f05177d208 rocm.gpg.key
+  
+2. Add the AMDGPU repository for the driver.  
+```bash
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/amdgpu/6.0/ubuntu jammy main" \
+    | sudo tee /etc/apt/sources.list.d/amdgpu.list
 sudo apt update
-sudo apt install amdgpu-dkms
-sudo apt install rocm-hip-libraries
-echo Please reboot system for all settings to take effect.
 ```
 
-## Monitoring GPU
+3. Add the ROCm repository.
+```bash
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/rocm/apt/6.0 jammy main" \
+    | sudo tee --append /etc/apt/sources.list.d/rocm.list
+echo -e 'Package: *\nPin: release o=repo.radeon.com\nPin-Priority: 600' \
+    | sudo tee /etc/apt/preferences.d/rocm-pin-600
+```
+
+4. Install kernel driver
+```bash
+sudo apt-get install -y amdgpu-dkms
+```
+
+5. Install ROCm packages
+```bash
+sudo apt-get install -y rocm-hip-sdk
+```
+
+6. Add yourself to the rend and video group
+```bash
+sudo usermod -a -G render,video $LOGNAME
+```
+ 
+## Post Installation Instructions.
+Instructions taken from [here](https://rocm.docs.amd.com/projects/install-on-linux/en/docs-6.0.0/how-to/native-install/post-install.html)
+
+1. Configure the system linker. Instruct the system linker where to find shared objects (.so-files) for ROCm applications.
+
+```bash
+sudo tee --append /etc/ld.so.conf.d/rocm.conf <<EOF
+/opt/rocm/lib
+/opt/rocm/lib64
+EOF
+sudo ldconfig
+```
+
+2. Configure PATH. Add binary paths to the PATH environment variable.
+```bash
+export PATH=$PATH:/opt/rocm-6.0.0/bin
+```
+
+3. Verify kernel-mode driver installation.
+```bash
+dkms status
+```
+
+4. Verify ROCm installation.
+```bash
+rocminfo
+```
+
+5. Verify system management interface (smi)
+```bash
+rocm-smi
+```
+
+## ROCm Development Tools 
+1. Install Python Packages
+
+`CppHeaderParser` A Python library that parses C++ header files to facilitate easy automation of code generation or documentation preparation tasks.
+
+`argparse` A standard Python library for parsing command-line arguments; useful for building user-friendly command-line tools.
+
+```bash
+pip3 install CppHeaderParser argparse
+```
+    
+2. Clone ROCm-Developer-Tools Repository, roctracer is a tool for tracing ROCm APIs, facilitating debugging and performance analysis.
+```bash
+git clone -b amd-master https://github.com/ROCm-Developer-Tools/roctracer
+```
+
+3. Navigate to the cloned directory, changes the current directory to roctracer, where you can build the project and explore its contents.
+```bash
+cd roctracer
+```
+
+4. Install dependencies:
+
+  * `cmake` An open-source, cross-platform family of tools designed to build, test, and package software.
+  * `doxygen` A documentation generator for various programming languages.
+  * `gcc & g++` The GNU Compiler Collection includes front ends for C and C++, among others.
+  * `graphviz` Provides a way of representing structural information as diagrams of abstract graphs and networks.
+  * `libatomic1` Provides support for atomic operations in GCC.
+  * `make` A tool which controls the generation of executables and other non-source files of a program from the program's source files.
+  * `texlive-full` A comprehensive TeX document production system.
+
+```bash
+sudo apt-get install -y cmake doxygen gcc graphviz g++ libatomic1 make texlive-full
+```
+
+5. Build the Project
+```bash
+build.sh
+```
+
+6. Compile Custom Test (Optional)
+```bash
+make mytest
+```
+ 
+7. Use make to install build.
+
+```bash
+sudo make install
+```
+
+## ROCm Libraries and Radeon Collective Communication Library (RCCL) Installation Command
+
+`[rccl](https://rocmdocs.amd.com/en/latest/reference/library-index.html#rccl)` facilitates efficient communication across GPUs in multi-GPU configurations, essential for distributed deep learning and parallel computing tasks.
+
+`[rocm-libs](https://rocmdocs.amd.com/en/latest/reference/library-index.html)` is a comprehensive suite of AMD-specific, device-side language runtime libraries designed to support the development and execution of high-performance computing applications on AMD GPUs. 
+
+These libraries are pivotal for developers aiming to leverage AMD's GPU computing capabilities across a wide range of scientific, data analysis, and machine learning applications, providing the foundational components for building and executing compute-intensive applications on AMD's GPU architecture​
+
+1. Install rccm and rocm-libs.
+```bash
+sudo apt-get install -y rccl rocm-libs
+``` 
+
+## ROCm Enumerate Agents 
+A tool shipped with this [script](https://github.com/ROCm/rocminfo) to enumerate GPU agents available on a working ROCm stack.
+
+```bash
+rocminfo
+```
+
+Result:
+```bash
+*******                  
+Agent 2                  
+*******                  
+  Name:                    gfx1100                            
+  Uuid:                    GPU-69e905a91bab9202               
+  Marketing Name:          Radeon RX 7900 XTX                 
+  Vendor Name:             AMD                                
+  Feature:                 KERNEL_DISPATCH                    
+  Profile:                 BASE_PROFILE                       
+  Float Round Mode:        NEAR                               
+  Max Queue Number:        128(0x80)                          
+  Queue Min Size:          64(0x40)                           
+  Queue Max Size:          131072(0x20000)                    
+  Queue Type:              MULTI                              
+  Node:                    1                                  
+  Device Type:             GPU                                
+  Cache Info:              
+    L1:                      32(0x20) KB                        
+    L2:                      6144(0x1800) KB                    
+    L3:                      98304(0x18000) KB                  
+  Chip ID:                 29772(0x744c)                      
+  ASIC Revision:           0(0x0)                             
+  Cacheline Size:          64(0x40)                           
+  Max Clock Freq. (MHz):   2304                               
+  BDFID:                   11520                              
+  Internal Node ID:        1                                  
+  Compute Unit:            96                                 
+  SIMDs per CU:            2                                  
+  Shader Engines:          6                                  
+  Shader Arrs. per Eng.:   2                                  
+  WatchPts on Addr. Ranges:4                                  
+  Coherent Host Access:    FALSE                              
+  Features:                KERNEL_DISPATCH 
+  Fast F16 Operation:      TRUE                               
+  Wavefront Size:          32(0x20)                           
+  Workgroup Max Size:      1024(0x400)                        
+  Workgroup Max Size per Dimension:
+    x                        1024(0x400)                        
+    y                        1024(0x400)                        
+    z                        1024(0x400)                        
+  Max Waves Per CU:        32(0x20)                           
+  Max Work-item Per CU:    1024(0x400)                        
+  Grid Max Size:           4294967295(0xffffffff)             
+  Grid Max Size per Dimension:
+    x                        4294967295(0xffffffff)             
+    y                        4294967295(0xffffffff)             
+    z                        4294967295(0xffffffff)             
+  Max fbarriers/Workgrp:   32                                 
+  Packet Processor uCode:: 550                                
+  SDMA engine uCode::      19                                 
+  IOMMU Support::          None                               
+  Pool Info:               
+    Pool 1                   
+      Segment:                 GLOBAL; FLAGS: COARSE GRAINED      
+      Size:                    25149440(0x17fc000) KB             
+      Allocatable:             TRUE                               
+      Alloc Granule:           4KB                                
+      Alloc Alignment:         4KB                                
+      Accessible by all:       FALSE                              
+    Pool 2                   
+      Segment:                 GLOBAL; FLAGS: EXTENDED FINE GRAINED
+      Size:                    25149440(0x17fc000) KB             
+      Allocatable:             TRUE                               
+      Alloc Granule:           4KB                                
+      Alloc Alignment:         4KB                                
+      Accessible by all:       FALSE                              
+    Pool 3                   
+      Segment:                 GROUP                              
+      Size:                    64(0x40) KB                        
+      Allocatable:             FALSE                              
+      Alloc Granule:           0KB                                
+      Alloc Alignment:         0KB                                
+      Accessible by all:       FALSE                              
+  ISA Info:                
+    ISA 1                    
+      Name:                    amdgcn-amd-amdhsa--gfx1100         
+      Machine Models:          HSA_MACHINE_MODEL_LARGE            
+      Profiles:                HSA_PROFILE_BASE                   
+      Default Rounding Mode:   NEAR                               
+      Default Rounding Mode:   NEAR                               
+      Fast f16:                TRUE                               
+      Workgroup Max Size:      1024(0x400)                        
+      Workgroup Max Size per Dimension:
+        x                        1024(0x400)                        
+        y                        1024(0x400)                        
+        z                        1024(0x400)                        
+      Grid Max Size:           4294967295(0xffffffff)             
+      Grid Max Size per Dimension:
+        x                        4294967295(0xffffffff)             
+        y                        4294967295(0xffffffff)             
+        z                        4294967295(0xffffffff)             
+      FBarrier Max Size:       32                                 
+*** Done ***
+```
+
+## ROCm System Management Interface (SMI)
 Monitor the GPU with [rocm-smi](https://manpages.debian.org/experimental/rocm-smi/rocm-smi.1.en.html).
 
-Usage (use watch -n 1 # replace 1 with second duration):
+Usage (use watch -n 1 # replace 1 with second duration for continuous monitoring):
 ```bash
 rocm-smi
 ```
@@ -89,8 +318,22 @@ GPU  Temp (DieEdge)  AvgPwr  SCLK    MCLK     Fan  Perf  PwrCap  VRAM%  GPU%
 =============================== End of ROCm SMI Log ================================
 ```
 
-## Driver Signing
-Record how I got driver signing to work. TBD for next fresh installation.
+## Mamba Environment Manager
+1. We’ll use the Mamba package manager to create the Python environment. You can learn more about it in my getting started tutorial.
+
+The following bash commands will download the latest release, install it, and relaunch the current bash shell to apply the relevant changes:
+```bash
+wget "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
+bash Mambaforge-$(uname)-$(uname -m).sh -b
+~/mambaforge/bin/mamba init
+bash
+```
+
+## Base OS Python, Pytorch Installation
+1. Install pytorch for ROCm via this [link](https://rocm.docs.amd.com/projects/radeon/en/latest/docs/install/install-pytorch.html).
+```bash
+sudo apt install python3-pip -y
+```
 
 ## Pycharm Integrated Development Environment
 1. Download [here](https://www.jetbrains.com/pycharm/download/other.html).
@@ -115,38 +358,10 @@ Current Desktop: ubuntu:GNOME
 which python3
 ```
 
-Result for Mamba:
+3. Use the following [instruction set](https://www.jetbrains.com/help/pycharm/configuring-python-interpreter.html) to set your python interpreter to use your python environment with the result of the last step.
 
-```bash
-~/mambaforge/envs/pytorch-rocm/bin/python3
-```
-
-Result for Base OS:
-
-```bash
-/usr/bin/python3
-```
-
-3. Use the following [instruction set](https://www.jetbrains.com/help/pycharm/configuring-python-interpreter.html) to set your python interpreter to use your python environment.
-
-## Mamba Environment Manager
-1. We’ll use the Mamba package manager to create the Python environment. You can learn more about it in my getting started tutorial.
-
-The following bash commands will download the latest release, install it, and relaunch the current bash shell to apply the relevant changes:
-```bash
-wget "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
-bash Mambaforge-$(uname)-$(uname -m).sh -b
-~/mambaforge/bin/mamba init
-bash
-```
-
-## Base OS Python, Pytorch Installation
-1. Install pytorch for ROCm via this [link](https://rocm.docs.amd.com/projects/radeon/en/latest/docs/install/install-pytorch.html).
-```bash
-sudo apt install python3-pip -y
-```
-
-2. Using these steps from [here](https://rocm.docs.amd.com/projects/install-on-linux/en/docs-6.0.0/how-to/3rd-party/pytorch-install.html#using-a-wheels-package). Note that I updated the rocm version in the url.
+## Pytorch for ROCM
+1. Using these steps from [here](https://rocm.docs.amd.com/projects/install-on-linux/en/docs-6.0.0/how-to/3rd-party/pytorch-install.html#using-a-wheels-package). Note that I updated the rocm version in the url.
 ```bash
 pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/rocm6.0/
 ```
@@ -158,7 +373,7 @@ Important! AMD recommends proceeding with ROCm WHLs available at repo.radeon.com
 The ROCm WHLs available at PyTorch.org are not tested extensively by AMD as the WHLs change regularly when the nightly builds are updated.
 
 ## Mamba Pytorch Installation
-1. Create a Python Environment
+1. Create a Python Environment in mamba
 
 ```bash
 mamba create --name pytorch-rocm python=3.10 -y
@@ -197,7 +412,6 @@ python3 -c "import torch; print(f'device name [0]:', torch.cuda.get_device_name(
 
 Expected result: 
 ```bash
-device name [0]: AMD Radeon RX 6600 XT
 ```
 
 4. Enter command to display component information within the current PyTorch environment.
@@ -207,83 +421,6 @@ python3 -m torch.utils.collect_env
 
 Expected result:
 ```bash
-Collecting environment information...
-PyTorch version: 2.3.0.dev20240217+rocm6.0
-Is debug build: False
-CUDA used to build PyTorch: N/A
-ROCM used to build PyTorch: 6.0.32830-d62f6a171
-
-OS: Ubuntu 22.04.4 LTS (x86_64)
-GCC version: (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
-Clang version: Could not collect
-CMake version: Could not collect
-Libc version: glibc-2.35
-
-Python version: 3.10.13 | packaged by conda-forge | (main, Dec 23 2023, 15:36:39) [GCC 12.3.0] (64-bit runtime)
-Python platform: Linux-6.5.0-18-generic-x86_64-with-glibc2.35
-Is CUDA available: True
-CUDA runtime version: Could not collect
-CUDA_MODULE_LOADING set to: LAZY
-GPU models and configuration: Radeon RX 7900 XTX (gfx1100)
-Nvidia driver version: Could not collect
-cuDNN version: Could not collect
-HIP runtime version: 6.0.32830
-MIOpen runtime version: 3.0.0
-Is XNNPACK available: True
-
-CPU:
-Architecture:                       x86_64
-CPU op-mode(s):                     32-bit, 64-bit
-Address sizes:                      48 bits physical, 48 bits virtual
-Byte Order:                         Little Endian
-CPU(s):                             24
-On-line CPU(s) list:                0-23
-Vendor ID:                          AuthenticAMD
-Model name:                         AMD Ryzen 9 5900X 12-Core Processor
-CPU family:                         25
-Model:                              33
-Thread(s) per core:                 2
-Core(s) per socket:                 12
-Socket(s):                          1
-Stepping:                           2
-Frequency boost:                    enabled
-CPU max MHz:                        4950.1948
-CPU min MHz:                        2200.0000
-BogoMIPS:                           7400.50
-Flags:                              fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibrs ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip pku ospke vaes vpclmulqdq rdpid overflow_recov succor smca fsrm
-Virtualization:                     AMD-V
-L1d cache:                          384 KiB (12 instances)
-L1i cache:                          384 KiB (12 instances)
-L2 cache:                           6 MiB (12 instances)
-L3 cache:                           64 MiB (2 instances)
-NUMA node(s):                       1
-NUMA node0 CPU(s):                  0-23
-Vulnerability Gather data sampling: Not affected
-Vulnerability Itlb multihit:        Not affected
-Vulnerability L1tf:                 Not affected
-Vulnerability Mds:                  Not affected
-Vulnerability Meltdown:             Not affected
-Vulnerability Mmio stale data:      Not affected
-Vulnerability Retbleed:             Not affected
-Vulnerability Spec rstack overflow: Mitigation; safe RET
-Vulnerability Spec store bypass:    Mitigation; Speculative Store Bypass disabled via prctl
-Vulnerability Spectre v1:           Mitigation; usercopy/swapgs barriers and __user pointer sanitization
-Vulnerability Spectre v2:           Mitigation; Retpolines, IBPB conditional, IBRS_FW, STIBP always-on, RSB filling, PBRSB-eIBRS Not affected
-Vulnerability Srbds:                Not affected
-Vulnerability Tsx async abort:      Not affected
-
-Versions of relevant libraries:
-[pip3] numpy==1.24.1
-[pip3] pytorch-triton-rocm==3.0.0+0a22a91d04
-[pip3] torch==2.3.0.dev20240217+rocm6.0
-[pip3] torchaudio==2.2.0.dev20240217+rocm6.0
-[pip3] torchvision==0.18.0.dev20240217+rocm6.0
-[conda] numpy                     1.24.1                   pypi_0    pypi
-[conda] pytorch-triton-rocm       3.0.0+0a22a91d04          pypi_0    pypi
-[conda] torch                     2.3.0.dev20240217+rocm6.0          pypi_0    pypi
-[conda] torchaudio                2.2.0.dev20240217+rocm6.0          pypi_0    pypi
-[conda] torchvision               0.18.0.dev20240217+rocm6.0          pypi_0    pypi
-
 ```
 
 Environment set-up is complete, and the system is ready for use with PyTorch to work with machine learning models, and algorithms.
@@ -317,71 +454,18 @@ Accessibility
 
 * Open Access: The dataset is publicly available and can be easily accessed and used through various machine learning frameworks like TensorFlow, PyTorch, etc.
 
-0. If using the 6600 XT (gfx1032) use the following command
-```bash
-export HSA_OVERRIDE_GFX_VERSION=10.3.0 # This will allow the gfx1032 to work with pytorch
-```
-
-2. Run the following command to test the hello world.
+1. Run the following command to test the hello world.
 ```bash
 python pytorch_mnist_numbers.py
 ```
 
 Result:
 ```bash
-(pytorch-rocm) flaniganp@amd-lite-machine:~/Documents/repos/amd-gpu-hello$ python pytorch_mnist_numbers.py 
-This is an experimnental Hello World using ROCm.
-	PyTorch Version: 2.0.1+rocm5.7
-	Torchvision Version: 0.15.2+rocm5.7
-	Using [cpu|cuda]: cuda
-	Using device: AMD Radeon RX 6600 XT
-	Devices Available 1
-Train Epoch: 1
-
-Test set: Average loss: 0.1162, Accuracy: 9656/10000 (97%)
-
-Train Epoch: 2
-
-Test set: Average loss: 0.0780, Accuracy: 9752/10000 (98%)
-
-Train Epoch: 3
-
-Test set: Average loss: 0.0617, Accuracy: 9809/10000 (98%)
-
-Train Epoch: 4
-
-Test set: Average loss: 0.0490, Accuracy: 9844/10000 (98%)
-
-Train Epoch: 5
-
-Test set: Average loss: 0.0451, Accuracy: 9843/10000 (98%)
-
-Train Epoch: 6
-
-Test set: Average loss: 0.0418, Accuracy: 9862/10000 (99%)
-
-Train Epoch: 7
-
-Test set: Average loss: 0.0383, Accuracy: 9868/10000 (99%)
-
-Train Epoch: 8
-
-Test set: Average loss: 0.0451, Accuracy: 9851/10000 (99%)
-
-Train Epoch: 9
-
-Test set: Average loss: 0.0362, Accuracy: 9881/10000 (99%)
 ```
 
 ## Tensorflow Pre-requisites
-### Note: Instructions for tensorflow with rocm 6.0.0 support for possible gfx1100 and gfx1030 directions reference [here](https://github.com/ROCmSoftwarePlatform/tensorflow-upstream/issues/1956) then [here](https://gist.github.com/briansp2020/1e8c3e5735087398ebfd9514f26a0007). As of the writing of these directions tensorflow-rocm does not have this version ready.
+Note: I had to manually build tensorflow with 2.15 and later due to recent addition of gfx1100 added and a missing comma preventing use. Perhaps in 2.16 the comma will update within the pypi packages. 
 
-1. Install [ROCm libraries](https://rocmdocs.amd.com/en/latest/reference/library-index.html) and [Radeon Collective Communications Library (RCCL)](https://rocmdocs.amd.com/en/latest/reference/library-index.html#rccl).
-```bash
-sudo apt install rocm-libs rccl
-```
-
-## Mamba Tensorflow Installation 
 1. Create a Python Environment
 
 ```bash
@@ -390,210 +474,20 @@ mamba activate tensorflow-rocm
 ```
 
 2. Install pip dependencies:
-
 ```bash
-pip3 install tensorflow-rocm==2.13.0.570
 ```
 
-3. Enter a python terminal 
-```bash
-python
-```
-
-4. The following is a bookmark until the 7900 XTX (gfx1100) starts working with ROCm. Note that docker was tried and resulted in the same message.
+3. The following worked in the python terminal:
 ```bash
 from tensorflow.python.client import device_lib
 print(device_lib.list_local_devices())
 ```
 
-Result:
-```bash
-2023-12-17 14:27:12.731221: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2023-12-17 14:27:12.744650: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2023-12-17 14:27:12.744697: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2023-12-17 14:27:12.744715: I tensorflow/core/common_runtime/gpu/gpu_device.cc:2015] Ignoring visible gpu device (device: 0, name: Radeon RX 7900 XTX, pci bus id: 0000:2d:00.0) with AMDGPU version : gfx1100. The supported AMDGPU versions are gfx1030, gfx900, gfx906, gfx908, gfx90a, gfx940, gfx941, gfx942.
-[]
-```
-
-5. However, with the following adjustment prior to opening a python terminal on the 6600 XT (gfx1032).
-```bash
-export HSA_OVERRIDE_GFX_VERSION=10.3.0 # This will allow the gfx1032 to work with tensorflow
-```
-
-6. The following worked in the python terminal:
-```bash
-from tensorflow.python.client import device_lib
-print(device_lib.list_local_devices())
-```
-
-7. The following script will now work.
+5. The following script will now work.
 ```bash
 python tensorflow-rocm.py
 ```
 
 Result: 
 ```bash
-2024-01-01 09:37:59.114894: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
-To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
-TensorFlow version: 2.13.0.570
-CUDA version: None
-cuDNN version: None
-2024-01-01 09:37:59.991442: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2024-01-01 09:38:00.006591: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2024-01-01 09:38:00.006647: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2024-01-01 09:38:00.006761: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-
-GPU Details: {'device_name': 'AMD Radeon RX 6600 XT'}
-Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/train-labels-idx1-ubyte.gz
-29515/29515 [==============================] - 0s 0us/step
-Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/train-images-idx3-ubyte.gz
-26421880/26421880 [==============================] - 0s 0us/step
-Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/t10k-labels-idx1-ubyte.gz
-5148/5148 [==============================] - 0s 0us/step
-Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/t10k-images-idx3-ubyte.gz
-4422102/4422102 [==============================] - 0s 0us/step
-Original Label: 9
-One-Hot Encoded Label: [0. 0. 0. 0. 0. 0. 0. 0. 0. 1.]
-Label: 1
-Class Name: Trouser
-Image Shape: (28, 28)
-Print the train image shape (60000, 28, 28).
-Print the train labels shape (60000,).
-2024-01-01 09:38:01.304567: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2024-01-01 09:38:01.304652: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2024-01-01 09:38:01.304689: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2024-01-01 09:38:01.304796: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2024-01-01 09:38:01.304838: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2024-01-01 09:38:01.304875: I tensorflow/compiler/xla/stream_executor/rocm/rocm_gpu_executor.cc:838] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
-2024-01-01 09:38:01.304897: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1639] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 7556 MB memory:  -> device: 0, name: AMD Radeon RX 6600 XT, pci bus id: 0000:2d:00.0
-2024-01-01 09:38:01.468501: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:01.702180: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:01.702731: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:01.704916: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:01.705515: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:01.705942: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:01.708065: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:01.708871: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-Training model...
-2024-01-01 09:38:01.965532: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:01.967473: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.021397: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.022163: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.027477: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.028583: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.099869: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.101187: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.105876: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.106609: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.107197: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.107826: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.108394: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.108829: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.111439: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.112455: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.112850: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.116665: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.119706: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.122040: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-Epoch 1/10
-2024-01-01 09:38:02.142350: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.144089: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.145705: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.146574: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.147379: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.148169: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.148654: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.149418: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.149855: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.154734: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.155182: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.165462: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.165944: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.166594: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.167032: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:02.463564: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:03.530729: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f4ff3c967e0 initialized for platform ROCM (this does not guarantee that XLA will be used). Devices:
-2024-01-01 09:38:03.530755: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): AMD Radeon RX 6600 XT, AMDGPU ISA version: gfx1030
-2024-01-01 09:38:03.533716: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:255] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
-2024-01-01 09:38:03.727399: I ./tensorflow/compiler/jit/device_compiler.h:186] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
-1868/1875 [============================>.] - ETA: 0s - loss: 0.5459 - accuracy: 0.80202024-01-01 09:38:11.761524: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:11.762324: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:11.762989: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:11.820229: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:11.820901: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:11.826612: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:11.827366: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:11.838967: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:11.839486: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:11.843582: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:11.844244: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:11.844802: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:11.845396: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:11.848352: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:11.851626: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:11.855061: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:11.857416: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:11.858299: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:11.938181: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-1875/1875 [==============================] - 10s 4ms/step - loss: 0.5457 - accuracy: 0.8022 - val_loss: 0.4102 - val_accuracy: 0.8505
-Epoch 2/10
-1863/1875 [============================>.] - ETA: 0s - loss: 0.3632 - accuracy: 0.87002024-01-01 09:38:19.907496: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:19.912569: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:19.916383: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-1875/1875 [==============================] - 8s 4ms/step - loss: 0.3634 - accuracy: 0.8699 - val_loss: 0.3704 - val_accuracy: 0.8653
-Epoch 3/10
-1870/1875 [============================>.] - ETA: 0s - loss: 0.3159 - accuracy: 0.88582024-01-01 09:38:27.277862: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:27.282865: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:27.287231: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-1875/1875 [==============================] - 7s 4ms/step - loss: 0.3159 - accuracy: 0.8858 - val_loss: 0.3324 - val_accuracy: 0.8832
-Epoch 4/10
-1872/1875 [============================>.] - ETA: 0s - loss: 0.2889 - accuracy: 0.89522024-01-01 09:38:43.167533: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:43.172763: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:43.176725: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-1875/1875 [==============================] - 16s 8ms/step - loss: 0.2890 - accuracy: 0.8951 - val_loss: 0.3347 - val_accuracy: 0.8816
-Epoch 5/10
-1875/1875 [==============================] - ETA: 0s - loss: 0.2698 - accuracy: 0.90222024-01-01 09:38:51.114836: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:51.119853: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:51.123796: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-1875/1875 [==============================] - 8s 4ms/step - loss: 0.2698 - accuracy: 0.9022 - val_loss: 0.2982 - val_accuracy: 0.8927
-Epoch 6/10
-1865/1875 [============================>.] - ETA: 0s - loss: 0.2517 - accuracy: 0.90902024-01-01 09:38:58.498805: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:58.503742: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:38:58.507554: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-1875/1875 [==============================] - 7s 4ms/step - loss: 0.2518 - accuracy: 0.9089 - val_loss: 0.3032 - val_accuracy: 0.8926
-Epoch 7/10
-1874/1875 [============================>.] - ETA: 0s - loss: 0.2382 - accuracy: 0.91342024-01-01 09:39:06.015766: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:39:06.020733: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:39:06.024544: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-1875/1875 [==============================] - 8s 4ms/step - loss: 0.2382 - accuracy: 0.9134 - val_loss: 0.2829 - val_accuracy: 0.8956
-Epoch 8/10
-1861/1875 [============================>.] - ETA: 0s - loss: 0.2272 - accuracy: 0.91742024-01-01 09:39:13.237387: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:39:13.243402: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:39:13.247480: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-1875/1875 [==============================] - 7s 4ms/step - loss: 0.2272 - accuracy: 0.9174 - val_loss: 0.3059 - val_accuracy: 0.8899
-Epoch 9/10
-1863/1875 [============================>.] - ETA: 0s - loss: 0.2189 - accuracy: 0.91922024-01-01 09:39:21.041438: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:39:21.045696: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:39:21.049384: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-1875/1875 [==============================] - 8s 4ms/step - loss: 0.2185 - accuracy: 0.9193 - val_loss: 0.2896 - val_accuracy: 0.8965
-Epoch 10/10
-1869/1875 [============================>.] - ETA: 0s - loss: 0.2081 - accuracy: 0.92322024-01-01 09:39:28.668377: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:39:28.673420: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:39:28.677318: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-1875/1875 [==============================] - 8s 4ms/step - loss: 0.2080 - accuracy: 0.9233 - val_loss: 0.2971 - val_accuracy: 0.8981
-Evaluating model...
-2024-01-01 09:39:29.246230: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:39:29.251652: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:39:29.258628: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:39:29.263333: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:39:29.266280: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:39:29.268687: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-313/313 [==============================] - 1s 2ms/step - loss: 0.2971 - accuracy: 0.8981
-/home/flaniganp/mambaforge/envs/tensorflow-rocm/lib/python3.10/site-packages/keras/src/engine/training.py:3000: UserWarning: You are saving your model as an HDF5 file via `model.save()`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')`.
-  saving_api.save_model(
-2024-01-01 09:39:29.893372: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:39:29.894316: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:39:29.896121: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:39:29.899235: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
-2024-01-01 09:39:29.900196: I tensorflow/core/common_runtime/gpu_fusion_pass.cc:508] ROCm Fusion is enabled.
 ```
