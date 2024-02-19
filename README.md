@@ -50,7 +50,181 @@ For each ROCm version ensure you check the [GPU Support and OS Compatibility (Li
 [LINK](https://www.newegg.com/deepcool-r-pq850m-fa0b-us-850-w/p/N82E16817328036?Item=N82E16817328036) Deepcool PQ850M R-PQ850M-FA0B-US 850 W ATX12V V2.4 80 PLUS GOLD Certified Full Modular Active PFC Power Supply
 
 # Getting Started
-## Radeon Open Compute (ROCm) Driver and Package Installation
+## Radeon Open Compute (ROCm)
+Version Used [6.0.0](https://rocm.docs.amd.com/en/docs-6.0.0/) [Compatible GPU List](https://rocm.docs.amd.com/projects/install-on-linux/en/docs-6.0.0/reference/system-requirements.html)
+
+ROCm is an open-source stack, composed primarily of open-source software, designed for graphics processing unit (GPU) computation. ROCm consists of a collection of drivers, development tools, and APIs that enable GPU programming from low-level kernel to end-user applications.
+
+With ROCm, you can customize your GPU software to meet your specific needs. You can develop, collaborate, test, and deploy your applications in a free, open source, integrated, and secure software ecosystem. ROCm is particularly well-suited to GPU-accelerated high-performance computing (HPC), artificial intelligence (AI), scientific computing, and computer aided design (CAD).
+
+ROCm is powered by AMD’s Heterogeneous-computing Interface for Portability (HIP), an open-source software C++ GPU programming environment and its corresponding runtime. HIP allows ROCm developers to create portable applications on different platforms by deploying code on a range of platforms, from dedicated gaming GPUs to exascale HPC clusters.
+
+ROCm supports programming models, such as OpenMP and OpenCL, and includes all necessary open source software compilers, debuggers, and libraries. ROCm is fully integrated into machine learning (ML) frameworks, such as PyTorch and TensorFlow.Key Components of ROCm:
+
+  * ROCm Runtime: ROCm includes a runtime that provides the necessary low-level GPU support, including hardware abstraction, memory management, and kernel execution. It allows developers to write and execute GPU-accelerated code using a variety of programming languages, including C, C++, and Python.
+
+  * ROCm Math Libraries (RocBLAS, RocFFT, etc.): ROCm provides a suite of math libraries optimized for AMD GPUs. These libraries include linear algebra routines (RocBLAS), Fast Fourier Transform (FFT) operations (RocFFT), and more. They are crucial for scientific and engineering applications.
+
+  * HIP (Heterogeneous-Compute Interface for Portability): HIP is a key component of ROCm that allows developers to write GPU-accelerated code in a way that can be easily ported between AMD and NVIDIA GPUs. It offers a high-level API and tools for GPU application development.
+
+  * ROCr (ROCm Runtime API): ROCr is an API that provides low-level control and management of AMD GPUs. It allows developers to interact directly with the GPU hardware and execute custom kernels.
+
+  * ROCProfiler: ROCProfiler is a profiling tool that helps developers analyze the performance of GPU-accelerated code. It provides insights into kernel execution times, memory usage, and other performance metrics.
+
+  * ROCTracer: This tool enables fine-grained GPU kernel tracing and profiling, making it easier to identify performance bottlenecks and optimize GPU code.
+
+  * ROCm SMI (System Management Interface): ROCm SMI allows users to monitor and manage the health and performance of AMD GPUs. It provides information about GPU temperature, power consumption, and other metrics.
+
+Supported Frameworks:
+
+ROCm is compatible with popular machine learning and deep learning frameworks, including TensorFlow and PyTorch. This compatibility allows researchers and data scientists to leverage the power of AMD GPUs for training and inference in machine learning models.
+
+ROCm Use Cases:
+
+  * Scientific Computing: ROCm is widely used in scientific research for simulations, computational fluid dynamics, molecular modeling, and other scientific computations that benefit from GPU acceleration.
+
+  * Machine Learning: ROCm enables training and inference for deep learning models, making it valuable for AI and machine learning applications.
+
+  * Data Analytics: ROCm can accelerate data analytics tasks, helping organizations process large datasets more efficiently.
+
+  * High-Performance Computing (HPC): ROCm is suitable for HPC clusters and supercomputers, where GPU acceleration is essential for scientific simulations and numerical calculations.
+
+Community and Open Source:
+ROCm is developed as an open-source project, fostering a collaborative community of developers, researchers, and enthusiasts. The open nature of ROCm encourages contributions, improvements, and the development of custom solutions for specific use cases.
+
+Compatibility:
+ROCm is primarily designed for AMD GPUs, including Radeon Instinct and Radeon Pro series cards. It is compatible with Linux-based operating systems and is often used with popular Linux distributions such as Ubuntu and CentOS.
+
+ROCm Packages:
+
+  * rocm-dkms (ROCm Dynamic Kernel Module Support):
+
+    * rocm-dkms is a package that provides Dynamic Kernel Module Support (DKMS) for the ROCm (Radeon Open Compute) software stack.
+      
+      * Dynamic Kernel Module Support (DKMS):
+        
+      * DKMS is a framework that enables automatic building and installation of kernel modules when the Linux kernel is updated.
+        
+      * It ensures that ROCm-specific kernel modules stay compatible with different kernel versions without manual intervention.
+        
+      * Ensures ROCm compatibility with various Linux kernels, making it easier to maintain ROCm functionality.
+
+  * rocm-libs:
+    
+      * rocm-libs contains GPU-accelerated libraries and tools for high-performance computing, machine learning, and more, as part of the ROCm software stack.
+        
+        * ROCm is an open-source framework for GPU computing on AMD GPUs.
+          
+        * rocm-libs is a fundamental part of this stack, providing essential libraries.
+          
+        * ROCm Libraries include optimized GPU libraries such as ROCm Math Libraries (RocBLAS, rocSOLVER) and ROCm Communication Libraries (RCCL).
+          
+        * These libraries enhance performance for various computing workloads.
+          
+        * Provides GPU-accelerated capabilities for scientific computing, machine learning, and deep learning tasks.
+          
+        * Optimized libraries improve the efficiency of GPU-based applications.
+
+  * rccl (ROCm Communication Collectives Library):
+    
+    * rccl is a specific library within the ROCm stack, designed to optimize GPU communication and synchronization for parallel computing workloads.
+      
+      * rccl focuses on optimizing communication primitives and collectives for multi-GPU parallel computing.
+        
+      * It enhances synchronization and data exchange between GPUs.
+        
+      * Valuable for distributed GPU computing, especially in deep learning training across multiple GPUs.
+        
+      * Improves the performance and scalability of GPU-accelerated parallel computing applications.
+        
+      * Enables efficient communication and coordination between GPUs in multi-GPU systems.
+
+Why They Are Important:
+
+    rocm-dkms: Ensures that ROCm remains compatible with different Linux kernel versions, simplifying the maintenance of GPU compute capabilities on AMD GPUs.
+
+    rocm-libs: Provides essential GPU-accelerated libraries for various high-performance computing tasks, making it easier to develop efficient applications.
+
+    rccl: Optimizes GPU communication for parallel computing, enhancing the performance and scalability of multi-GPU applications, particularly valuable in deep learning and scientific computing.
+
+# PyTorch:
+PyTorch is an open-source deep learning framework known for its dynamic computation graph, making it flexible for experimentation and debugging. It's Pythonic, easy to learn, and widely used in research for tasks like computer vision, natural language processing, and reinforcement learning.
+
+Version Used:
+  * [torch==2.3.0.dev20240110+rocm5.7]([2.3.0.dev20240110+rocm5.7](https://download.pytorch.org/whl/nightly/rocm5.7/torch-2.3.0.dev20240110%2Brocm5.7-cp310-cp310-linux_x86_64.whl))
+  * [torchvision==0.18.0.dev20240110+rocm5.7](https://download.pytorch.org/whl/nightly/rocm5.7/torchvision-0.18.0.dev20240110%2Brocm5.7-cp310-cp310-linux_x86_64.whl)
+
+## Comments: 
+  * Pytorch has not been as big of a pain setting up as Tensorflow. Go back in versions and try it, unless asked I'll just try later versions). 
+
+# TensorFlow:
+TensorFlow, developed by Google Brain, is an open-source machine learning framework with a static computation graph, optimized for production deployments. It's scalable, works on CPUs and GPUs, and offers TensorFlow Serving for model deployment. TensorFlow provides high-level APIs like Keras and is used in various machine learning applications, including computer vision, natural language processing, and recommendation systems.
+
+Version Used [2.16.0.600-dev20240109](http://ml-ci.amd.com:21096/job/tensorflow/job/nightly-rocmfork-develop-upstream/job/nightly-build-whl/lastSuccessfulBuild/artifact/packages-3.10/tf_nightly_rocm-2.16.0.600.dev20240109-cp310-cp310-manylinux2014_x86_64.whl)
+
+## Comments:
+ * [2.15.0.600](http://ml-ci.amd.com:21096/job/tensorflow/job/release-rocmfork-r215-rocm-enhanced/job/release-build-whl/) specifically this [one](http://ml-ci.amd.com:21096/job/tensorflow/job/release-rocmfork-r215-rocm-enhanced/job/release-build-whl/lastSuccessfulBuild/artifact/packages-3.10/tensorflow_rocm-2.15.0.600-cp310-cp310-manylinux2014_x86_64.whl) works.
+ * 2.14.0.600: The supported AMDGPU versions are gfx1030gfx1100, gfx900, gfx906, gfx908, gfx90a, gfx940, gfx941, gfx942.
+   * Yes a comma prevents this version from running.
+   * Recompilation at tensorflow/compiler/xla/stream_executor/device_description.h line 184, which takes an hour on the above build will get tried and this instruction updated if it works. 
+ * 2.13.1.600: The supported AMDGPU versions are gfx1030, gfx900, gfx906, gfx908, gfx90a, gfx940, gfx941, gfx942.
+
+# Current GPU
+The [MSI Gaming Radeon RX 7900 XTX](https://www.amd.com/en/products/graphics/amd-radeon-rx-7900xtx) is a high-end graphics card designed for gaming and demanding graphics workloads. With 24GB of GDDR6 memory and support for PCI Express 4.0, it delivers excellent performance and is suitable for gamers and professionals looking for top-tier graphics capabilities.
+
+| **Technical Specifications**              | **Details**                                      |
+|-------------------------------------------|--------------------------------------------------|
+| **Graphics Processing Unit**              | AMD Radeon RX 7900 XTX (Navi 31)                 |
+| **Architecture**                          | RDNA 3 (gfx1100)                                 |
+| **Core Clock**                            | Up to 2340 MHz (Boost Clock)                     |
+| **Compute Units**                         | 96                                               |
+| **Boost Frequency**                       | Up to 2500 MHz                                   |
+| **Stream Processors**                     | 6144                                             |
+| **AI Accelerators**                       | 192                                              |
+| **Peak Pixel Fill-Rate**                  | Up to 480 GP/s                                   |
+| **Peak Texture Fill-Rate**                | Up to 960 GT/s                                   |
+| **Peak Half Precision Compute Performance**| 123 TFLOPs                                       |
+| **Peak Single Precision Compute Performance**| 61 TFLOPs                                      |
+| **ROPs**                                  | 192                                              |
+| **Texture Units**                         | 384                                              |
+| **Transistor Count**                      | 58 B                                             |
+| **Memory**                                | 24GB GDDR6                                       |
+| **Memory Speed**                          | Up to 20 Gbps (Effective)                        |
+| **Memory Type**                           | GDDR6                                            |
+| **Memory Bus**                            | 384-bit                                          |
+| **Memory Bandwidth**                      | Up to 960 GB/s                                   |
+| **Effective Memory Bandwidth**            | Up to 3500 GB/s                                  |
+| **AMD Infinity Cache Technology**         | 96 MB                                            |
+| **PCI Express Version**                   | PCIe 4.0                                         |
+| **TDP (Thermal Design Power)**            | 330W                                             |
+| **Typical Board Power (Desktop)**         | 355 W                                            |
+| **Minimum PSU Recommendation**            | 800 W                                            |
+| **Power Connectors**                      | 2 x 8-pin PCIe                                   |
+| **Display Outputs**                       | - 3 x DisplayPort 1.4a                           |
+|                                           | - 1 x HDMI 2.1                                   |
+| **DirectX Support**                       | DirectX 12 Ultimate                             |
+| **Ray Tracing Support**                   | AMD Ray Accelerator, Ray Tracing Support         |
+| **VR Ready**                              | Yes                                              |
+| **CrossFire Support**                     | Yes (With compatible AMD GPUs)                   |
+| **RGB Lighting**                          | Mystic Light RGB lighting                        |
+| **Form Factor**                           | ATX                                              |
+| **Dimensions (L X W X H)**                                | 325 mm (12.8 inches) X 141 mm (5.6 inches) X 56 mm (2.2 inches)                                         |
+| **Slot Size**                             | 2.5 slots                                        |
+| **Cooling**                               | Triple-fan cooling system with Zero Frozr        |
+| **Recommended PSU**                       | Minimum 750W                                     |
+| **Operating Systems**                     | - Windows 10/11 (64-bit)                         |
+|                                           | - Linux (64-bit)                                 |
+| **Warranty**                              | 3 years                                          |
+
+The MSI Gaming Radeon RX 7900 XTX is a powerful graphics card that boasts 24GB of GDDR6 memory and supports PCI Express 4.0, making it ideal for high-resolution gaming, content creation, and professional applications. Its triple-fan cooling system ensures efficient heat dissipation, and it features RGB lighting for customization. With DirectX 12 Ultimate support and ray tracing capabilities, it provides an immersive gaming experience. Additionally, it supports CrossFire for multi-GPU setups and is VR-ready. This graphics card is a solid choice for enthusiasts and gamers seeking top-notch performance.
+
+# Walkthrough
+
+## Install Ubuntu 22.4.03
+* Minimal Installation
+* Download updates
+
+## ROCm Driver and Package Installation
 ROCm Platform: Offers a comprehensive foundation for HPC, machine learning, and scientific research on AMD GPUs.
  
 Installation instructions take from [here](https://rocm.docs.amd.com/projects/install-on-linux/en/docs-6.0.0/how-to/native-install/ubuntu.html)
