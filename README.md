@@ -151,8 +151,8 @@ Why They Are Important:
 PyTorch is an open-source deep learning framework known for its dynamic computation graph, making it flexible for experimentation and debugging. It's Pythonic, easy to learn, and widely used in research for tasks like computer vision, natural language processing, and reinforcement learning.
 
 Version Used:
-  * [torch==2.3.0.dev20240110+rocm5.7]([2.3.0.dev20240110+rocm5.7](https://download.pytorch.org/whl/nightly/rocm5.7/torch-2.3.0.dev20240110%2Brocm5.7-cp310-cp310-linux_x86_64.whl))
-  * [torchvision==0.18.0.dev20240110+rocm5.7](https://download.pytorch.org/whl/nightly/rocm5.7/torchvision-0.18.0.dev20240110%2Brocm5.7-cp310-cp310-linux_x86_64.whl)
+  * [torch==2.3.0.dev20240219+rocm6.0](https://download.pytorch.org/whl/nightly/rocm6.0/torch-2.3.0.dev20240219%2Brocm6.0-cp310-cp310-linux_x86_64.whl)
+  * [torchvision==0.18.0.dev20240115+rocm6.0](https://download.pytorch.org/whl/nightly/torchvision-0.18.0.dev20240115-cp310-cp310-linux_aarch64.whl)
 
 ## Comments: 
   * Pytorch has not been as big of a pain setting up as Tensorflow. Go back in versions and try it, unless asked I'll just try later versions). 
@@ -649,6 +649,7 @@ mamba activate tensorflow-rocm
 
 2. Install pip dependencies:
 ```bash
+
 ```
 
 3. The following worked in the python terminal:
