@@ -160,7 +160,7 @@ Version Used:
 # TensorFlow:
 TensorFlow, developed by Google Brain, is an open-source machine learning framework with a static computation graph, optimized for production deployments. It's scalable, works on CPUs and GPUs, and offers TensorFlow Serving for model deployment. TensorFlow provides high-level APIs like Keras and is used in various machine learning applications, including computer vision, natural language processing, and recommendation systems.
 
-Version Used [2.16.0.600-dev20240109](http://ml-ci.amd.com:21096/job/tensorflow/job/nightly-rocmfork-develop-upstream/job/nightly-build-whl/lastSuccessfulBuild/artifact/packages-3.10/tf_nightly_rocm-2.16.0.600.dev20240109-cp310-cp310-manylinux2014_x86_64.whl)
+Version Used [2.16.0.600-dev20240219](http://ml-ci.amd.com:21096/job/tensorflow/job/nightly-rocmfork-develop-upstream/job/nightly-build-whl/lastSuccessfulBuild/artifact/packages-3.10/tf_nightly_rocm-2.16.0.600.dev20240219-cp310-cp310-manylinux2014_x86_64.whl)
 
 ## Comments:
  * [2.15.0.600](http://ml-ci.amd.com:21096/job/tensorflow/job/release-rocmfork-r215-rocm-enhanced/job/release-build-whl/) specifically this [one](http://ml-ci.amd.com:21096/job/tensorflow/job/release-rocmfork-r215-rocm-enhanced/job/release-build-whl/lastSuccessfulBuild/artifact/packages-3.10/tensorflow_rocm-2.15.0.600-cp310-cp310-manylinux2014_x86_64.whl) works.
