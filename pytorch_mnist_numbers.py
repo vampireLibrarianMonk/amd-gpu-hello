@@ -71,13 +71,13 @@ def train(model, device, train_loader, optimizer, epoch):
         loss = F.nll_loss(output, target)
         loss.backward()
         optimizer.step()
-        if batch_idx % 10 == 0:
-            print(f'Train Epoch: {epoch} [{batch_idx * len(data)}/{len(train_loader.dataset)} '
-                  f'({100. * batch_idx / len(train_loader):.0f}%)]\tLoss: {loss.item():.6f}')
+        # if batch_idx % 100 == 0:
+        #     print(f'Train Epoch: {epoch} [{batch_idx * len(data)}/{len(train_loader.dataset)} '
+        #           f'({100. * batch_idx / len(train_loader):.0f}%)]\tLoss: {loss.item():.6f}')
 
 
 # Define the testing loop
-def test(model, device, test_loader):
+def test(model, device, test_loader, epoch):
     model.eval()
     test_loss = 0
     correct = 0
@@ -90,7 +90,7 @@ def test(model, device, test_loader):
             correct += pred.eq(target.view_as(pred)).sum().item()
 
     test_loss /= len(test_loader.dataset)
-    print(f'\nTest set: Average loss: {test_loss:.4f}, '
+    print(f'\nEpoch: {epoch}\nTest set: Average loss: {test_loss:.4f}, '
           f'Accuracy: {correct}/{len(test_loader.dataset)} ({100. * correct / len(test_loader.dataset):.0f}%)\n')
 
 # Basic information
@@ -116,4 +116,4 @@ print(f"\tDevices Available {devices_available}")
 # Run the training and testing for a number of epochs
 for epoch in range(1, 10):
     train(model, device, train_loader, optimizer, epoch)
-    test(model, device, test_loader)
+    test(model, device, test_loader, epoch)

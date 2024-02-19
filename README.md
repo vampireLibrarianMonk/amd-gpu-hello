@@ -147,6 +147,34 @@ Why They Are Important:
 
     rccl: Optimizes GPU communication for parallel computing, enhancing the performance and scalability of multi-GPU applications, particularly valuable in deep learning and scientific computing.
 
+## ROCm Libraries and Radeon Collective Communication Library (RCCL) Installation Command
+
+`[rccl](https://rocmdocs.amd.com/en/latest/reference/library-index.html#rccl)` facilitates efficient communication across GPUs in multi-GPU configurations, essential for distributed deep learning and parallel computing tasks.
+
+`[rocm-libs](https://rocmdocs.amd.com/en/latest/reference/library-index.html)` is a comprehensive suite of AMD-specific, device-side language runtime libraries designed to support the development and execution of high-performance computing applications on AMD GPUs. 
+
+These libraries are pivotal for developers aiming to leverage AMD's GPU computing capabilities across a wide range of scientific, data analysis, and machine learning applications, providing the foundational components for building and executing compute-intensive applications on AMD's GPU architecture​
+
+1. Install rccm and rocm-libs.
+```bash
+sudo apt-get install -y rccl rocm-libs
+``` 
+
+## ROCm Enumerate Agents 
+A tool shipped with this [script](https://github.com/ROCm/rocminfo) to enumerate GPU agents available on a working ROCm stack.
+
+```bash
+rocminfo
+```
+
+## ROCm System Management Interface (SMI)
+Monitor the GPU with [rocm-smi](https://manpages.debian.org/experimental/rocm-smi/rocm-smi.1.en.html).
+
+Usage (use watch -n 1 # replace 1 with second duration for continuous monitoring):
+```bash
+rocm-smi
+```
+
 # PyTorch:
 PyTorch is an open-source deep learning framework known for its dynamic computation graph, making it flexible for experimentation and debugging. It's Pythonic, easy to learn, and widely used in research for tasks like computer vision, natural language processing, and reinforcement learning.
 
@@ -229,7 +257,7 @@ ROCm Platform: Offers a comprehensive foundation for HPC, machine learning, and 
  
 Installation instructions take from [here](https://rocm.docs.amd.com/projects/install-on-linux/en/docs-6.0.0/how-to/native-install/ubuntu.html)
  
-1. Download and convert the package signing key.   
+1. Download and convert the package signing key.
 ```bash
 # Make the directory if it doesn't exist yet.
 # This location is recommended by the distribution maintainers.
@@ -250,7 +278,7 @@ echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.
 sudo apt update
 ```
 
-3. Add the ROCm repository.
+3. Add the ROCm repository:
 ```bash
 echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/rocm/apt/6.0 jammy main" \
     | sudo tee --append /etc/apt/sources.list.d/rocm.list
@@ -258,19 +286,34 @@ echo -e 'Package: *\nPin: release o=repo.radeon.com\nPin-Priority: 600' \
     | sudo tee /etc/apt/preferences.d/rocm-pin-600
 ```
 
-4. Install kernel driver
+4. Install kernel driver:
 ```bash
 sudo apt-get install -y amdgpu-dkms
 ```
 
-5. Install ROCm packages
+5. Reboot:
+```bash
+sudo reboot
+```
+
+7. Update package list:
+```bash
+sudo apt-get update
+```
+
+8. Install ROCm packages:
 ```bash
 sudo apt-get install -y rocm-hip-sdk
 ```
 
-6. Add yourself to the rend and video group
+9. Add yourself to the rend and video group:
 ```bash
 sudo usermod -a -G render,video $LOGNAME
+```
+
+10. Reboot, for changes to take effect:
+```bash
+sudo reboot
 ```
  
 ## Post Installation Instructions.
@@ -288,97 +331,94 @@ sudo ldconfig
 
 2. Configure PATH. Add binary paths to the PATH environment variable.
 ```bash
-export PATH=$PATH:/opt/rocm-6.0.0/bin
+echo 'export PATH=$PATH:/opt/rocm-6.0.0/bin' >> ~/.bashrc
 ```
 
-3. Verify kernel-mode driver installation.
+3. Close and open your terminal or use the following command:
+```bash
+source ~/.bashrc
+```
+
+4. Verify kernel-mode driver installation.
 ```bash
 dkms status
 ```
 
-4. Verify ROCm installation.
-```bash
-rocminfo
-```
-
-5. Verify system management interface (smi)
-```bash
-rocm-smi
-```
-
-## ROCm Development Tools 
-1. Install Python Packages
-
-`CppHeaderParser` A Python library that parses C++ header files to facilitate easy automation of code generation or documentation preparation tasks.
-
-`argparse` A standard Python library for parsing command-line arguments; useful for building user-friendly command-line tools.
-
-```bash
-pip3 install CppHeaderParser argparse
-```
-    
-2. Clone ROCm-Developer-Tools Repository, roctracer is a tool for tracing ROCm APIs, facilitating debugging and performance analysis.
-```bash
-git clone -b amd-master https://github.com/ROCm-Developer-Tools/roctracer
-```
-
-3. Navigate to the cloned directory, changes the current directory to roctracer, where you can build the project and explore its contents.
-```bash
-cd roctracer
-```
-
-4. Install dependencies:
-
-  * `cmake` An open-source, cross-platform family of tools designed to build, test, and package software.
-  * `doxygen` A documentation generator for various programming languages.
-  * `gcc & g++` The GNU Compiler Collection includes front ends for C and C++, among others.
-  * `graphviz` Provides a way of representing structural information as diagrams of abstract graphs and networks.
-  * `libatomic1` Provides support for atomic operations in GCC.
-  * `make` A tool which controls the generation of executables and other non-source files of a program from the program's source files.
-  * `texlive-full` A comprehensive TeX document production system.
-
-```bash
-sudo apt-get install -y cmake doxygen gcc graphviz g++ libatomic1 make texlive-full
-```
-
-5. Build the Project
-```bash
-build.sh
-```
-
-6. Compile Custom Test (Optional)
-```bash
-make mytest
-```
- 
-7. Use make to install build.
-
-```bash
-sudo make install
-```
-
-## ROCm Libraries and Radeon Collective Communication Library (RCCL) Installation Command
-
-`[rccl](https://rocmdocs.amd.com/en/latest/reference/library-index.html#rccl)` facilitates efficient communication across GPUs in multi-GPU configurations, essential for distributed deep learning and parallel computing tasks.
-
-`[rocm-libs](https://rocmdocs.amd.com/en/latest/reference/library-index.html)` is a comprehensive suite of AMD-specific, device-side language runtime libraries designed to support the development and execution of high-performance computing applications on AMD GPUs. 
-
-These libraries are pivotal for developers aiming to leverage AMD's GPU computing capabilities across a wide range of scientific, data analysis, and machine learning applications, providing the foundational components for building and executing compute-intensive applications on AMD's GPU architecture​
-
-1. Install rccm and rocm-libs.
-```bash
-sudo apt-get install -y rccl rocm-libs
-``` 
-
-## ROCm Enumerate Agents 
-A tool shipped with this [script](https://github.com/ROCm/rocminfo) to enumerate GPU agents available on a working ROCm stack.
-
+5. Verify ROCm installation.
 ```bash
 rocminfo
 ```
 
 Result:
 ```bash
+ROCk module is loaded
+=====================    
+HSA System Attributes    
+=====================    
+Runtime Version:         1.1
+System Timestamp Freq.:  1000.000000MHz
+Sig. Max Wait Duration:  18446744073709551615 (0xFFFFFFFFFFFFFFFF) (timestamp count)
+Machine Model:           LARGE                              
+System Endianness:       LITTLE                             
+Mwaitx:                  DISABLED
+DMAbuf Support:          YES
+
+==========               
+HSA Agents               
+==========               
+*******                  
+Agent 1                  
+*******                  
+  Name:                    AMD Ryzen 9 5900X 12-Core Processor
+  Uuid:                    CPU-XX                             
+  Marketing Name:          AMD Ryzen 9 5900X 12-Core Processor
+  Vendor Name:             CPU                                
+  Feature:                 None specified                     
+  Profile:                 FULL_PROFILE                       
+  Float Round Mode:        NEAR                               
+  Max Queue Number:        0(0x0)                             
+  Queue Min Size:          0(0x0)                             
+  Queue Max Size:          0(0x0)                             
+  Queue Type:              MULTI                              
+  Node:                    0                                  
+  Device Type:             CPU                                
+  Cache Info:              
+    L1:                      32768(0x8000) KB                   
+  Chip ID:                 0(0x0)                             
+  ASIC Revision:           0(0x0)                             
+  Cacheline Size:          64(0x40)                           
+  Max Clock Freq. (MHz):   3700                               
+  BDFID:                   0                                  
+  Internal Node ID:        0                                  
+  Compute Unit:            24                                 
+  SIMDs per CU:            0                                  
+  Shader Engines:          0                                  
+  Shader Arrs. per Eng.:   0                                  
+  WatchPts on Addr. Ranges:1                                  
+  Features:                None
+  Pool Info:               
+    Pool 1                   
+      Segment:                 GLOBAL; FLAGS: FINE GRAINED        
+      Size:                    131816192(0x7db5b00) KB            
+      Allocatable:             TRUE                               
+      Alloc Granule:           4KB                                
+      Alloc Alignment:         4KB                                
+      Accessible by all:       TRUE                               
+    Pool 2                   
+      Segment:                 GLOBAL; FLAGS: KERNARG, FINE GRAINED
+      Size:                    131816192(0x7db5b00) KB            
+      Allocatable:             TRUE                               
+      Alloc Granule:           4KB                                
+      Alloc Alignment:         4KB                                
+      Accessible by all:       TRUE                               
+    Pool 3                   
+      Segment:                 GLOBAL; FLAGS: COARSE GRAINED      
+      Size:                    131816192(0x7db5b00) KB            
+      Allocatable:             TRUE                               
+      Alloc Granule:           4KB                                
+      Alloc Alignment:         4KB                                
+      Accessible by all:       TRUE                               
+  ISA Info:                
 *******                  
 Agent 2                  
 *******                  
@@ -471,25 +511,109 @@ Agent 2
         y                        4294967295(0xffffffff)             
         z                        4294967295(0xffffffff)             
       FBarrier Max Size:       32                                 
-*** Done ***
+*** Done *** 
 ```
 
-## ROCm System Management Interface (SMI)
-Monitor the GPU with [rocm-smi](https://manpages.debian.org/experimental/rocm-smi/rocm-smi.1.en.html).
-
-Usage (use watch -n 1 # replace 1 with second duration for continuous monitoring):
+6. Verify system management interface (smi)
 ```bash
 rocm-smi
 ```
 
 Result:
 ```bash
-========================= ROCm System Management Interface =========================
-=================================== Concise Info ===================================
-GPU  Temp (DieEdge)  AvgPwr  SCLK    MCLK     Fan  Perf  PwrCap  VRAM%  GPU%  
-0    37.0c           19.0W   800Mhz  1000Mhz  0%   auto  140.0W   14%   0%    
-====================================================================================
-=============================== End of ROCm SMI Log ================================
+====================================== ROCm System Management Interface ======================================
+================================================ Concise Info ================================================
+Device  [Model : Revision]    Temp    Power  Partitions      SCLK   MCLK     Fan  Perf  PwrCap  VRAM%  GPU%  
+        Name (20 chars)       (Edge)  (Avg)  (Mem, Compute)                                                  
+==============================================================================================================
+0       [0x5200 : 0xc8]       45.0°C  74.0W  N/A, N/A        42Mhz  1249Mhz  0%   auto  291.0W    2%   2%    
+        0x744c                                                                                               
+==============================================================================================================
+============================================ End of ROCm SMI Log =============================================
+```
+
+## ROCm Development Tools 
+1. Install Python Packages
+
+`CppHeaderParser` A Python library that parses C++ header files to facilitate easy automation of code generation or documentation preparation tasks.
+
+`argparse` A standard Python library for parsing command-line arguments; useful for building user-friendly command-line tools.
+
+```bash
+pip3 install CppHeaderParser argparse
+```
+    
+2. Clone ROCm-Developer-Tools Repository, roctracer is a tool for tracing ROCm APIs, facilitating debugging and performance analysis.
+```bash
+git clone -b amd-master https://github.com/ROCm-Developer-Tools/roctracer
+```
+
+3. Navigate to the cloned directory, changes the current directory to roctracer, where you can build the project and explore its contents.
+```bash
+cd roctracer
+```
+
+4. Install dependencies:
+
+  * `cmake` An open-source, cross-platform family of tools designed to build, test, and package software.
+  * `doxygen` A documentation generator for various programming languages.
+  * `gcc & g++` The GNU Compiler Collection includes front ends for C and C++, among others.
+  * `graphviz` Provides a way of representing structural information as diagrams of abstract graphs and networks.
+  * `libatomic1` Provides support for atomic operations in GCC.
+  * `libstdc++-12-dev` Development package for the GNU Standard C++ Library version 12 (solves cmath not found error)
+  * `make` A tool which controls the generation of executables and other non-source files of a program from the program's source files.
+  * `rpm` Builder for rpms (Fixes RPM package requires rpmbuild executable).
+  * `texlive-full` A comprehensive TeX document production system.
+
+```bash
+sudo apt-get install -y cmake doxygen gcc graphviz g++ libatomic1 libstdc++-12-dev make rpm texlive-full
+```
+
+5. Build the Project
+```bash
+bash build.sh
+```
+
+6. Change directory to build
+```bash
+cd build
+```
+
+7. Compile Custom Test (Optional)
+```bash
+make mytest
+```
+
+Result:
+```bash
+[  3%] Built target dlopen
+[  8%] Built target util
+[ 22%] Built target roctracer
+[ 26%] Built target roctracer_tool
+[ 29%] Built target hip_stats
+[ 33%] Built target roctx
+[ 36%] Built target MatrixTranspose
+[ 40%] Built target MatrixTranspose_test
+[ 43%] Built target MatrixTranspose_hipaact_test
+[ 47%] Built target MatrixTranspose_mgpu
+[ 52%] Built target MatrixTranspose_ctest
+[ 56%] Built target codeobj_test
+[ 71%] Built target hsaco_targets
+[ 75%] Built target copy
+[ 78%] Built target roctx_test
+[ 82%] Built target backward_compat_test
+[ 85%] Built target load_unload_reload_test
+[ 89%] Built target trace_buffer
+[ 92%] Built target memory_pool
+[ 96%] Built target activity_and_callback
+[100%] Built target multi_pool_activities
+[100%] Built target mytest
+```
+ 
+8. Use make to install build.
+
+```bash
+sudo make install
 ```
 
 ## Mamba Environment Manager
@@ -503,49 +627,6 @@ bash Mambaforge-$(uname)-$(uname -m).sh -b
 bash
 ```
 
-## Base OS Python, Pytorch Installation
-1. Install pytorch for ROCm via this [link](https://rocm.docs.amd.com/projects/radeon/en/latest/docs/install/install-pytorch.html).
-```bash
-sudo apt install python3-pip -y
-```
-
-## Pycharm Integrated Development Environment
-1. Download [here](https://www.jetbrains.com/pycharm/download/other.html).
-```bash
-PyCharm 2023.2.5 (Community Edition)
-Build #PC-232.10227.11, built on November 13, 2023
-Runtime version: 17.0.9+7-b1000.46 amd64
-VM: OpenJDK 64-Bit Server VM by JetBrains s.r.o.
-Linux 6.2.0-37-generic
-GC: G1 Young Generation, G1 Old Generation
-Memory: 4096M
-Cores: 24
-Registry:
-    ide.experimental.ui=true
-
-
-Current Desktop: ubuntu:GNOME
-```
-
-2. Use the following command to find the python path.
-```bash
-which python3
-```
-
-3. Use the following [instruction set](https://www.jetbrains.com/help/pycharm/configuring-python-interpreter.html) to set your python interpreter to use your python environment with the result of the last step.
-
-## Pytorch for ROCM
-1. Using these steps from [here](https://rocm.docs.amd.com/projects/install-on-linux/en/docs-6.0.0/how-to/3rd-party/pytorch-install.html#using-a-wheels-package). Note that I updated the rocm version in the url.
-```bash
-pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/rocm6.0/
-```
-
-This may take several minutes. 
-
-Important! AMD recommends proceeding with ROCm WHLs available at repo.radeon.com. 
-
-The ROCm WHLs available at PyTorch.org are not tested extensively by AMD as the WHLs change regularly when the nightly builds are updated.
-
 ## Mamba Pytorch Installation
 1. Create a Python Environment in mamba
 
@@ -554,7 +635,27 @@ mamba create --name pytorch-rocm python=3.10 -y
 mamba activate pytorch-rocm
 ```
 
-2. Install pip dependencies for rocm in Base OS Python section.
+2. Install pip dependencies for rocm.
+
+## Pytorch for ROCM Stable and Nightly from AMD
+Important! AMD recommends proceeding with ROCm WHLs available, noting the proper ROCm version at [repo.radeon.com](https://repo.radeon.com/rocm/manylinux/). 
+
+Here is a [sample](https://repo.radeon.com/rocm/manylinux/rocm-rel-6.0/README.html) direction set that was referenced.
+
+1. Here is an example as of the writing of these directions:
+```bash
+pip3 install torch==2.1.1 torchvision==0.16.1 -f https://repo.radeon.com/rocm/manylinux/rocm-rel-6.0/ 
+```
+
+The ROCm WHLs available at PyTorch.org are not tested extensively by AMD as the WHLs change regularly when the nightly builds are updated.
+
+2. Using these steps from [here](https://rocm.docs.amd.com/projects/install-on-linux/en/docs-6.0.0/how-to/3rd-party/pytorch-install.html#using-a-wheels-package). Note that I updated the rocm version in the url.
+```bash
+pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/rocm6.0/
+```
+
+Note: This may take several minutes. 
+
 
 ## Verify pytorch installation.
 1. Verify if Pytorch is installed and detecting the GPU compute device.
@@ -586,6 +687,7 @@ python3 -c "import torch; print(f'device name [0]:', torch.cuda.get_device_name(
 
 Expected result: 
 ```bash
+device name [0]: Radeon RX 7900 XTX
 ```
 
 4. Enter command to display component information within the current PyTorch environment.
@@ -593,11 +695,108 @@ Expected result:
 python3 -m torch.utils.collect_env
 ```
 
-Expected result:
+Expected result (repo.radeon.com):
 ```bash
+Collecting environment information...
+PyTorch version: 2.1.1+rocm6.0
+Is debug build: False
+CUDA used to build PyTorch: N/A
+ROCM used to build PyTorch: 6.0.32830-d62f6a171
+
+OS: Ubuntu 22.04.4 LTS (x86_64)
+GCC version: (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
+Clang version: Could not collect
+CMake version: Could not collect
+Libc version: glibc-2.35
+
+Python version: 3.10.13 | packaged by conda-forge | (main, Dec 23 2023, 15:36:39) [GCC 12.3.0] (64-bit runtime)
+Python platform: Linux-6.5.0-18-generic-x86_64-with-glibc2.35
+Is CUDA available: True
+CUDA runtime version: Could not collect
+CUDA_MODULE_LOADING set to: LAZY
+GPU models and configuration: Radeon RX 7900 XTX
+Nvidia driver version: Could not collect
+cuDNN version: Could not collect
+HIP runtime version: 6.0.32830
+MIOpen runtime version: 3.0.0
+Is XNNPACK available: True
+
+CPU:
+Architecture:                       x86_64
+CPU op-mode(s):                     32-bit, 64-bit
+Address sizes:                      48 bits physical, 48 bits virtual
+Byte Order:                         Little Endian
+CPU(s):                             24
+On-line CPU(s) list:                0-23
+Vendor ID:                          AuthenticAMD
+Model name:                         AMD Ryzen 9 5900X 12-Core Processor
+CPU family:                         25
+Model:                              33
+Thread(s) per core:                 2
+Core(s) per socket:                 12
+Socket(s):                          1
+Stepping:                           2
+Frequency boost:                    enabled
+CPU max MHz:                        4950.1948
+CPU min MHz:                        2200.0000
+BogoMIPS:                           7400.37
+Flags:                              fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibrs ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip pku ospke vaes vpclmulqdq rdpid overflow_recov succor smca fsrm
+Virtualization:                     AMD-V
+L1d cache:                          384 KiB (12 instances)
+L1i cache:                          384 KiB (12 instances)
+L2 cache:                           6 MiB (12 instances)
+L3 cache:                           64 MiB (2 instances)
+NUMA node(s):                       1
+NUMA node0 CPU(s):                  0-23
+Vulnerability Gather data sampling: Not affected
+Vulnerability Itlb multihit:        Not affected
+Vulnerability L1tf:                 Not affected
+Vulnerability Mds:                  Not affected
+Vulnerability Meltdown:             Not affected
+Vulnerability Mmio stale data:      Not affected
+Vulnerability Retbleed:             Not affected
+Vulnerability Spec rstack overflow: Mitigation; safe RET
+Vulnerability Spec store bypass:    Mitigation; Speculative Store Bypass disabled via prctl
+Vulnerability Spectre v1:           Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:           Mitigation; Retpolines, IBPB conditional, IBRS_FW, STIBP always-on, RSB filling, PBRSB-eIBRS Not affected
+Vulnerability Srbds:                Not affected
+Vulnerability Tsx async abort:      Not affected
+
+Versions of relevant libraries:
+[pip3] numpy==1.26.4
+[pip3] torch==2.1.1+rocm6.0
+[pip3] torchvision==0.16.1+rocm6.0
+[conda] numpy                     1.26.4                   pypi_0    pypi
+[conda] torch                     2.1.1+rocm6.0            pypi_0    pypi
+[conda] torchvision               0.16.1+rocm6.0           pypi_0    pypi
 ```
 
 Environment set-up is complete, and the system is ready for use with PyTorch to work with machine learning models, and algorithms.
+
+## Pycharm Integrated Development Environment
+1. Download [here](https://www.jetbrains.com/pycharm/download/other.html).
+```bash
+PyCharm 2023.2.6 (Community Edition)
+Build #PC-232.10300.41, built on February 14, 2024
+Runtime version: 17.0.10+7-b1000.48 amd64
+VM: OpenJDK 64-Bit Server VM by JetBrains s.r.o.
+Linux 6.5.0-18-generic
+GC: G1 Young Generation, G1 Old Generation
+Memory: 1500M
+Cores: 24
+Registry:
+    ide.experimental.ui=true
+
+
+Current Desktop: ubuntu:GNOME
+```
+
+2. Use the following command, onnce environment setup (i.e. conda, mamba etc.) to find the python path.
+```bash
+which python3
+```
+
+3. Use the following [instruction set](https://www.jetbrains.com/help/pycharm/configuring-python-interpreter.html) to set your python interpreter to use your python environment with the result of the last step.
 
 ## Pytorch Hello World
 The MNIST dataset is an iconic and foundational dataset in the machine learning community, primarily used for training and testing models in image processing, particularly for digit recognition tasks. It has played a critical role in the evolution of machine learning techniques and continues to be a valuable resource for education and benchmarking in the field.
@@ -635,11 +834,60 @@ python pytorch_mnist_numbers.py
 
 Result:
 ```bash
+This is an experimnental Hello World using ROCm.
+        PyTorch Version: 2.1.1+rocm6.0
+        Torchvision Version: 0.16.1+rocm6.0
+        Using [cpu|cuda]: cuda
+        Using device: Radeon RX 7900 XTX
+        Devices Available 1
+
+Epoch: 1
+Test set: Average loss: 0.1299, Accuracy: 9608/10000 (96%)
+
+
+Epoch: 2
+Test set: Average loss: 0.0811, Accuracy: 9754/10000 (98%)
+
+
+Epoch: 3
+Test set: Average loss: 0.0629, Accuracy: 9801/10000 (98%)
+
+
+Epoch: 4
+Test set: Average loss: 0.0665, Accuracy: 9780/10000 (98%)
+
+
+Epoch: 5
+Test set: Average loss: 0.0480, Accuracy: 9842/10000 (98%)
+
+
+Epoch: 6
+Test set: Average loss: 0.0486, Accuracy: 9839/10000 (98%)
+
+
+Epoch: 7
+Test set: Average loss: 0.0409, Accuracy: 9870/10000 (99%)
+
+
+Epoch: 8
+Test set: Average loss: 0.0373, Accuracy: 9873/10000 (99%)
+
+
+Epoch: 9
+Test set: Average loss: 0.0383, Accuracy: 9866/10000 (99%)
 ```
 
-## Tensorflow Pre-requisites
-Note: I had to manually build tensorflow with 2.15 and later due to recent addition of gfx1100 added and a missing comma preventing use. Perhaps in 2.16 the comma will update within the pypi packages. 
+## Mamba Tensorflow for ROCM Installation
+1. Create a Python Environment in mamba
 
+```bash
+mamba create --name pytorch-rocm python=3.10 -y
+mamba activate pytorch-rocm
+```
+
+2. Install pip dependencies for rocm.
+
+## Pytorch for Tensorflow ROCm Nightly 
 1. Create a Python Environment
 
 ```bash
@@ -649,20 +897,125 @@ mamba activate tensorflow-rocm
 
 2. Install pip dependencies:
 ```bash
-
+pip3 install http://ml-ci.amd.com:21096/job/tensorflow/job/nightly-rocmfork-develop-upstream/job/nightly-build-whl/lastSuccessfulBuild/artifact/packages-3.10/tf_nightly_rocm-2.16.0.600.dev20240219-cp310-cp310-manylinux2014_x86_64.whl
 ```
 
-3. The following worked in the python terminal:
+## Verify tensorflow installation.
+1. The following worked in the python terminal:
 ```bash
 from tensorflow.python.client import device_lib
 print(device_lib.list_local_devices())
 ```
 
-5. The following script will now work.
+Result:
+```bash
+(tensorflow-rocm) flaniganp@amd-gpu-machine:~/Downloads/roctracer/build$ python
+Python 3.10.13 | packaged by conda-forge | (main, Dec 23 2023, 15:36:39) [GCC 12.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from tensorflow.python.client import device_lib
+2024-02-19 10:12:34.866913: E external/local_xla/xla/stream_executor/plugin_registry.cc:91] Invalid plugin kind specified: DNN
+2024-02-19 10:12:34.902824: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE3 SSE4.1 SSE4.2 AVX AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2024-02-19 10:12:35.190644: E external/local_xla/xla/stream_executor/plugin_registry.cc:91] Invalid plugin kind specified: DNN
+>>> print(device_lib.list_local_devices())
+2024-02-19 10:12:36.669985: I external/local_xla/xla/stream_executor/rocm/rocm_executor.cc:874] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-02-19 10:12:36.689453: I external/local_xla/xla/stream_executor/rocm/rocm_executor.cc:874] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-02-19 10:12:36.689504: I external/local_xla/xla/stream_executor/rocm/rocm_executor.cc:874] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-02-19 10:12:36.690504: I external/local_xla/xla/stream_executor/rocm/rocm_executor.cc:874] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-02-19 10:12:36.690550: I external/local_xla/xla/stream_executor/rocm/rocm_executor.cc:874] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-02-19 10:12:36.690596: I external/local_xla/xla/stream_executor/rocm/rocm_executor.cc:874] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-02-19 10:12:36.690622: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1928] Created device /device:GPU:0 with 23466 MB memory:  -> device: 0, name: Radeon RX 7900 XTX, pci bus id: 0000:2d:00.0
+[name: "/device:CPU:0"
+device_type: "CPU"
+memory_limit: 268435456
+locality {
+}
+incarnation: 16497019316532335090
+xla_global_id: -1
+, name: "/device:GPU:0"
+device_type: "GPU"
+memory_limit: 24605884416
+locality {
+  bus_id: 1
+  links {
+  }
+}
+incarnation: 17729530124763235462
+physical_device_desc: "device: 0, name: Radeon RX 7900 XTX, pci bus id: 0000:2d:00.0"
+xla_global_id: 416903419
+]
+```
+
+4. The following script will now work.
 ```bash
 python tensorflow-rocm.py
 ```
 
 Result: 
 ```bash
+(tensorflow-rocm) flaniganp@amd-gpu-machine:~/Documents/repos/amd-gpu-hello$ python tensorflow-rocm.py
+2024-02-19 10:13:23.619015: E external/local_xla/xla/stream_executor/plugin_registry.cc:91] Invalid plugin kind specified: DNN
+2024-02-19 10:13:23.658474: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE3 SSE4.1 SSE4.2 AVX AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2024-02-19 10:13:23.971159: E external/local_xla/xla/stream_executor/plugin_registry.cc:91] Invalid plugin kind specified: DNN
+TensorFlow version: 2.16.0.600-dev20240219
+CUDA version: None
+cuDNN version: None
+2024-02-19 10:13:24.618800: I external/local_xla/xla/stream_executor/rocm/rocm_executor.cc:874] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-02-19 10:13:24.640243: I external/local_xla/xla/stream_executor/rocm/rocm_executor.cc:874] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-02-19 10:13:24.640300: I external/local_xla/xla/stream_executor/rocm/rocm_executor.cc:874] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-02-19 10:13:24.640414: I external/local_xla/xla/stream_executor/rocm/rocm_executor.cc:874] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+
+GPU Details: {'device_name': 'Radeon RX 7900 XTX'}
+Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/train-labels-idx1-ubyte.gz
+29515/29515 ━━━━━━━━━━━━━━━━━━━━ 0s 1us/step
+Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/train-images-idx3-ubyte.gz
+26421880/26421880 ━━━━━━━━━━━━━━━━━━━━ 0s 0us/step
+Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/t10k-labels-idx1-ubyte.gz
+5148/5148 ━━━━━━━━━━━━━━━━━━━━ 0s 1us/step
+Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/t10k-images-idx3-ubyte.gz
+4422102/4422102 ━━━━━━━━━━━━━━━━━━━━ 0s 0us/step
+Original Label: 9
+One-Hot Encoded Label: [0. 0. 0. 0. 0. 0. 0. 0. 0. 1.]
+Label: 4
+Class Name: Coat
+Image Shape: (28, 28)
+Print the train image shape (60000, 28, 28).
+Print the train labels shape (60000,).
+2024-02-19 10:13:25.921355: I external/local_xla/xla/stream_executor/rocm/rocm_executor.cc:874] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-02-19 10:13:25.921447: I external/local_xla/xla/stream_executor/rocm/rocm_executor.cc:874] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-02-19 10:13:25.921482: I external/local_xla/xla/stream_executor/rocm/rocm_executor.cc:874] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-02-19 10:13:25.921588: I external/local_xla/xla/stream_executor/rocm/rocm_executor.cc:874] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-02-19 10:13:25.921630: I external/local_xla/xla/stream_executor/rocm/rocm_executor.cc:874] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-02-19 10:13:25.921670: I external/local_xla/xla/stream_executor/rocm/rocm_executor.cc:874] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2024-02-19 10:13:25.921692: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1928] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 23450 MB memory:  -> device: 0, name: Radeon RX 7900 XTX, pci bus id: 0000:2d:00.0
+Training model...
+Epoch 1/10
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1708355607.215073   31946 service.cc:145] XLA service 0x7f1f58003d30 initialized for platform ROCM (this does not guarantee that XLA will be used). Devices:
+I0000 00:00:1708355607.215104   31946 service.cc:153]   StreamExecutor device (0): Radeon RX 7900 XTX, AMDGPU ISA version: gfx1100
+2024-02-19 10:13:27.235619: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:268] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+I0000 00:00:1708355608.478721   31946 device_compiler.h:187] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+1875/1875 ━━━━━━━━━━━━━━━━━━━━ 5s 2ms/step - accuracy: 0.7301 - loss: 0.7512 - val_accuracy: 0.8580 - val_loss: 0.4015
+Epoch 2/10
+1875/1875 ━━━━━━━━━━━━━━━━━━━━ 3s 1ms/step - accuracy: 0.8678 - loss: 0.3665 - val_accuracy: 0.8736 - val_loss: 0.3542
+Epoch 3/10
+1875/1875 ━━━━━━━━━━━━━━━━━━━━ 3s 1ms/step - accuracy: 0.8809 - loss: 0.3262 - val_accuracy: 0.8854 - val_loss: 0.3259
+Epoch 4/10
+1875/1875 ━━━━━━━━━━━━━━━━━━━━ 3s 1ms/step - accuracy: 0.8957 - loss: 0.2883 - val_accuracy: 0.8909 - val_loss: 0.3089
+Epoch 5/10
+1875/1875 ━━━━━━━━━━━━━━━━━━━━ 3s 1ms/step - accuracy: 0.9013 - loss: 0.2688 - val_accuracy: 0.8925 - val_loss: 0.3001
+Epoch 6/10
+1875/1875 ━━━━━━━━━━━━━━━━━━━━ 3s 1ms/step - accuracy: 0.9080 - loss: 0.2539 - val_accuracy: 0.8993 - val_loss: 0.2838
+Epoch 7/10
+1875/1875 ━━━━━━━━━━━━━━━━━━━━ 3s 1ms/step - accuracy: 0.9118 - loss: 0.2377 - val_accuracy: 0.8985 - val_loss: 0.2798
+Epoch 8/10
+1875/1875 ━━━━━━━━━━━━━━━━━━━━ 3s 1ms/step - accuracy: 0.9186 - loss: 0.2243 - val_accuracy: 0.8993 - val_loss: 0.2809
+Epoch 9/10
+1875/1875 ━━━━━━━━━━━━━━━━━━━━ 3s 1ms/step - accuracy: 0.9229 - loss: 0.2105 - val_accuracy: 0.8986 - val_loss: 0.2837
+Epoch 10/10
+1875/1875 ━━━━━━━━━━━━━━━━━━━━ 3s 1ms/step - accuracy: 0.9246 - loss: 0.2056 - val_accuracy: 0.9066 - val_loss: 0.2697
+Evaluating model...
+313/313 ━━━━━━━━━━━━━━━━━━━━ 0s 700us/step - accuracy: 0.9082 - loss: 0.2783
+WARNING:absl:You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`. 
 ```

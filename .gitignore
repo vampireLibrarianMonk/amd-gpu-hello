@@ -1,1 +1,12 @@
 .idea
+
+# Archives
+*.tar.gz
+*.tar
+*.zip
+
+# Wheels
+*.whl
+
+# Models
+*.h5
