@@ -900,6 +900,13 @@ mamba activate tensorflow-rocm
 pip3 install http://ml-ci.amd.com:21096/job/tensorflow/job/nightly-rocmfork-develop-upstream/job/nightly-build-whl/lastSuccessfulBuild/artifact/packages-3.10/tf_nightly_rocm-2.16.0.600.dev20240219-cp310-cp310-manylinux2014_x86_64.whl
 ```
 
+## Tensorflow ROCm Build From Source
+Use the following script to build from source, presently it builds from r2.,15-rocm-enhanced:
+```bash
+cd scripts/test-build-env-tensorflow
+sudo bash build_tensorflow.sh $(rocm-smi --version | grep ROCM-SMI-LIB | awk '{print $NF}')
+```
+
 ## Verify tensorflow installation.
 1. The following worked in the python terminal:
 ```bash

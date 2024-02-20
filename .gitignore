@@ -10,3 +10,9 @@
 
 # Models
 *.h5
+
+# Build from source, only keep build scripts
+scripts/test-build-env-tensorflow/*
+!scripts/test-build-env-tensorflow/build_tensorflow.sh
+scripts/test-build-env-pytorch/*
+!scripts/test-build-env-pytorch/build_torch.sh
