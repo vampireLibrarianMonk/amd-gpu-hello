@@ -12,6 +12,9 @@ For each ROCm version ensure you check the [GPU Support and OS Compatibility (Li
 
 [Tensorflow-rocm Version List](https://github.com/ROCmSoftwarePlatform/tensorflow-upstream/blob/develop-upstream/rocm_docs/tensorflow-rocm-release.md)
 
+# Blog
+Check out the following [blog](https://rocm.blogs.amd.com/) that I found on this [news article](https://www.phoronix.com/news/AMD-ROCm-Blog-Platform).
+
 # Build
 ## Case
 [LINK](https://www.newegg.com/black-jonsbo-mesh-screen-mtx-case-micro-atx/p/2AM-006A-000B8?Item=9SIAY3SJNH9664) JONSBO D31 MESH SC BLACK Micro ATX Computer Case with Sub HD-LCD Display, M-ATX/DTX/ITX Mainboard/Support RTX 4090(335-400mm) GPU 360/280AIO,Power ATX/SFX: 100mm-220mm Multiple Tool-free Design,Black

@@ -51,3 +51,4 @@ cd ..
 
 # Install the built PyTorch wheel package, upgrading any existing installation.
 pip install -U pytorch/dist/*.whl
+
