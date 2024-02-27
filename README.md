@@ -898,9 +898,9 @@ mamba create --name tensorflow-rocm python=3.10 -y
 mamba activate tensorflow-rocm
 ```
 
-2. Install pip dependencies:
+2. Install pip dependencies from [nightly-rocmfork-develop-upstream](http://ml-ci.amd.com:21096/job/tensorflow/job/nightly-rocmfork-develop-upstream/job/nightly-build-whl):
 ```bash
-pip3 install http://ml-ci.amd.com:21096/job/tensorflow/job/nightly-rocmfork-develop-upstream/job/nightly-build-whl/lastSuccessfulBuild/artifact/packages-3.10/tf_nightly_rocm-2.16.0.600.dev20240219-cp310-cp310-manylinux2014_x86_64.whl
+pip3 install ${NIGHTLY_ARTIFACT}
 ```
 
 ## Tensorflow ROCm Build From Source
