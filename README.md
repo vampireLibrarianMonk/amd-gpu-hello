@@ -245,6 +245,13 @@ The MSI Gaming Radeon RX 7900 XTX is a powerful graphics card that boasts 24GB o
 ## Install Ubuntu 22.4.05
 No minimal and no third party driver installation. I used secure boot and had no issues so far, does not mean you won't so disable secure boot if it presents an issue.
 
+I installed the following packages as a part of the server variant of ubuntu:
+    * `kde-desktop-plasma`
+    * `linux-generic-hw-22.04`
+    * `xrdp`
+
+These let me connect to my server so perform remote work. For the sake of this repo's instruction length it is assumed you know how to work with these packages.
+
 ## ROCm Driver and Package Installation
 ROCm Platform: Offers a comprehensive foundation for HPC, machine learning, and scientific research on AMD GPUs.
  
