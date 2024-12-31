@@ -606,6 +606,21 @@ which python3
 
 3. Use the following [instruction set](https://www.jetbrains.com/help/pycharm/configuring-python-interpreter.html) to set your python interpreter to use your python environment with the result of the last step.
 
+### Note on Memory
+To increase the memory allocated to PyCharm's Java Virtual Machine (JVM), follow these steps:
+
+Open PyCharm.
+
+Access Memory Settings:
+
+Navigate to Help in the top menu.
+Select Change Memory Settings.
+Adjust Memory Allocation:
+
+In the dialog that appears, increase the memory value as needed.
+Click Save and Restart to apply the changes.
+This process modifies the -Xmx parameter, which sets the maximum heap size for the JVM running PyCharm.
+
 ## Mamba Pytorch Installation
 1. Create a Python Environment in mamba
 
